@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on A notebook on data analysis in python</title>
+    <link>https://wormone.github.io/notebook/post/index.xml</link>
+    <description>Recent content in Posts on A notebook on data analysis in python</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Thu, 26 Jan 2017 22:53:16 +0800</lastBuildDate>
+    <atom:link href="https://wormone.github.io/notebook/post/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Good to Great Book Review</title>
+      <link>https://wormone.github.io/notebook/post/good-to-great/</link>
+      <pubDate>Thu, 26 Jan 2017 22:53:16 +0800</pubDate>
+      
+      <guid>https://wormone.github.io/notebook/post/good-to-great/</guid>
+      <description>&lt;p&gt;I read &lt;strong&gt;Good to Great in January 2017&lt;/strong&gt;. An awesome read sharing detailed analysis on how good companis became great.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
