@@ -6,179 +6,97 @@
     <description>Recent content on A notebook on data analysis in python</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Mon, 17 Apr 2017 14:53:16 +0800</lastBuildDate>
+    <lastBuildDate>Fri, 21 Jul 2017 19:21:15 +0800</lastBuildDate>
     <atom:link href="https://wormone.github.io/notebook/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
-      <title>Receiver Operating Characteristic (ROC)</title>
-      <link>https://wormone.github.io/notebook/post/plot_roc/</link>
-      <pubDate>Mon, 17 Apr 2017 14:53:16 +0800</pubDate>
+      <title>机器学习与环境气象：空气质量预报：4业务生产</title>
+      <link>https://wormone.github.io/notebook/post/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%8E%E7%8E%AF%E5%A2%83%E6%B0%94%E8%B1%A1%EF%BC%9A%E7%A9%BA%E6%B0%94%E8%B4%A8%E9%87%8F%E9%A2%84%E6%8A%A5%EF%BC%9A4%E4%B8%9A%E5%8A%A1%E7%94%9F%E4%BA%A7/</link>
+      <pubDate>Fri, 21 Jul 2017 19:21:15 +0800</pubDate>
       
-      <guid>https://wormone.github.io/notebook/post/plot_roc/</guid>
-      <description>
+      <guid>https://wormone.github.io/notebook/post/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%8E%E7%8E%AF%E5%A2%83%E6%B0%94%E8%B1%A1%EF%BC%9A%E7%A9%BA%E6%B0%94%E8%B4%A8%E9%87%8F%E9%A2%84%E6%8A%A5%EF%BC%9A4%E4%B8%9A%E5%8A%A1%E7%94%9F%E4%BA%A7/</guid>
+      <description>&lt;p&gt;建立模型和方案的最终目的是能够应用于未来每天的实际预测业务生产中。因此，&lt;strong&gt;很重要的一点&lt;/strong&gt;必须记住，那就是未来可用于预测的特征必须能够和之前建模训练时采用的特征保持完全一致。也就是说，如果建模训练时采用的特征在后来不可获取了，那么模型也就无法应用到实际的日常生产中去了。所以，在建模训练的时候就必须关注这个问题。在条件不能再满足的情况下，重新建模训练甚至重新做特征工程都是有可能的。&lt;/p&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;%matplotlib inline
-&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;模型方案确定可行之后，要做的就是业务化部署了。这一部份工作就是对预报方案的封装，然后设定定时自动化任务并记录运行日志。如果是在linux系统上，crontab较为常用。如果实在windows上，也可以配置任务计划。此外，python也有软件包（常用apscheduler）可以做定时任务配置。&lt;/p&gt;
 
-&lt;p&gt;Example of Receiver Operating Characteristic (ROC) metric to evaluate
-classifier output quality.&lt;/p&gt;
+&lt;p&gt;既然是业务化生产，就要监控各种可能出现的异常情况，用python的logging模块可以很好的承担这个工作。对于各种异常情况造成的数据缺失情况，也应有相应的处理措施，具体问题需要具体分析，以保障日常生产。&lt;/p&gt;
 
-&lt;p&gt;ROC curves typically feature true positive rate on the Y axis, and false
-positive rate on the X axis. This means that the top left corner of the plot is
-the &amp;ldquo;ideal&amp;rdquo; point - a false positive rate of zero, and a true positive rate of
-one. This is not very realistic, but it does mean that a larger area under the
-curve (AUC) is usually better.&lt;/p&gt;
-
-&lt;p&gt;The &amp;ldquo;steepness&amp;rdquo; of ROC curves is also important, since it is ideal to maximize
-the true positive rate while minimizing the false positive rate.&lt;/p&gt;
-
-&lt;h2 id=&#34;multiclass-settings&#34;&gt;Multiclass settings&lt;/h2&gt;
-
-&lt;p&gt;ROC curves are typically used in binary classification to study the output of
-a classifier. In order to extend ROC curve and ROC area to multi-class
-or multi-label classification, it is necessary to binarize the output. One ROC
-curve can be drawn per label, but one can also draw a ROC curve by considering
-each element of the label indicator matrix as a binary prediction
-(micro-averaging).&lt;/p&gt;
-
-&lt;p&gt;Another evaluation measure for multi-class classification is
-macro-averaging, which gives equal weight to the classification of each
-label.&lt;/p&gt;
-
-&lt;p&gt;.. note::&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;See also :func:`sklearn.metrics.roc_auc_score`,
-         :ref:`sphx_glr_auto_examples_model_selection_plot_roc_crossval.py`.
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;print(__doc__)
-
-import numpy as np
-import matplotlib.pyplot as plt
-from itertools import cycle
-
-from sklearn import svm, datasets
-from sklearn.metrics import roc_curve, auc
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import label_binarize
-from sklearn.multiclass import OneVsRestClassifier
-from scipy import interp
-
-# Import some data to play with
-iris = datasets.load_iris()
-X = iris.data
-y = iris.target
-
-# Binarize the output
-y = label_binarize(y, classes=[0, 1, 2])
-n_classes = y.shape[1]
-
-# Add noisy features to make the problem harder
-random_state = np.random.RandomState(0)
-n_samples, n_features = X.shape
-X = np.c_[X, random_state.randn(n_samples, 200 * n_features)]
-
-# shuffle and split training and test sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.5,
-                                                    random_state=0)
-
-# Learn to predict each class against the other
-classifier = OneVsRestClassifier(svm.SVC(kernel=&#39;linear&#39;, probability=True,
-                                 random_state=random_state))
-y_score = classifier.fit(X_train, y_train).decision_function(X_test)
-
-# Compute ROC curve and ROC area for each class
-fpr = dict()
-tpr = dict()
-roc_auc = dict()
-for i in range(n_classes):
-    fpr[i], tpr[i], _ = roc_curve(y_test[:, i], y_score[:, i])
-    roc_auc[i] = auc(fpr[i], tpr[i])
-
-# Compute micro-average ROC curve and ROC area
-fpr[&amp;quot;micro&amp;quot;], tpr[&amp;quot;micro&amp;quot;], _ = roc_curve(y_test.ravel(), y_score.ravel())
-roc_auc[&amp;quot;micro&amp;quot;] = auc(fpr[&amp;quot;micro&amp;quot;], tpr[&amp;quot;micro&amp;quot;])
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code&gt;Automatically created module for IPython interactive environment
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Plot of a ROC curve for a specific class&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;plt.figure()
-lw = 2
-plt.plot(fpr[2], tpr[2], color=&#39;darkorange&#39;,
-         lw=lw, label=&#39;ROC curve (area = %0.2f)&#39; % roc_auc[2])
-plt.plot([0, 1], [0, 1], color=&#39;navy&#39;, lw=lw, linestyle=&#39;--&#39;)
-plt.xlim([0.0, 1.0])
-plt.ylim([0.0, 1.05])
-plt.xlabel(&#39;False Positive Rate&#39;)
-plt.ylabel(&#39;True Positive Rate&#39;)
-plt.title(&#39;Receiver operating characteristic example&#39;)
-plt.legend(loc=&amp;quot;lower right&amp;quot;)
-plt.show()
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;img src=&#34;output_4_0.png&#34; alt=&#34;png&#34; /&gt;&lt;/p&gt;
-
-&lt;p&gt;Plot ROC curves for the multiclass problem&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;# Compute macro-average ROC curve and ROC area
-
-# First aggregate all false positive rates
-all_fpr = np.unique(np.concatenate([fpr[i] for i in range(n_classes)]))
-
-# Then interpolate all ROC curves at this points
-mean_tpr = np.zeros_like(all_fpr)
-for i in range(n_classes):
-    mean_tpr += interp(all_fpr, fpr[i], tpr[i])
-
-# Finally average it and compute AUC
-mean_tpr /= n_classes
-
-fpr[&amp;quot;macro&amp;quot;] = all_fpr
-tpr[&amp;quot;macro&amp;quot;] = mean_tpr
-roc_auc[&amp;quot;macro&amp;quot;] = auc(fpr[&amp;quot;macro&amp;quot;], tpr[&amp;quot;macro&amp;quot;])
-
-# Plot all ROC curves
-plt.figure()
-plt.plot(fpr[&amp;quot;micro&amp;quot;], tpr[&amp;quot;micro&amp;quot;],
-         label=&#39;micro-average ROC curve (area = {0:0.2f})&#39;
-               &#39;&#39;.format(roc_auc[&amp;quot;micro&amp;quot;]),
-         color=&#39;deeppink&#39;, linestyle=&#39;:&#39;, linewidth=4)
-
-plt.plot(fpr[&amp;quot;macro&amp;quot;], tpr[&amp;quot;macro&amp;quot;],
-         label=&#39;macro-average ROC curve (area = {0:0.2f})&#39;
-               &#39;&#39;.format(roc_auc[&amp;quot;macro&amp;quot;]),
-         color=&#39;navy&#39;, linestyle=&#39;:&#39;, linewidth=4)
-
-colors = cycle([&#39;aqua&#39;, &#39;darkorange&#39;, &#39;cornflowerblue&#39;])
-for i, color in zip(range(n_classes), colors):
-    plt.plot(fpr[i], tpr[i], color=color, lw=lw,
-             label=&#39;ROC curve of class {0} (area = {1:0.2f})&#39;
-             &#39;&#39;.format(i, roc_auc[i]))
-
-plt.plot([0, 1], [0, 1], &#39;k--&#39;, lw=lw)
-plt.xlim([0.0, 1.0])
-plt.ylim([0.0, 1.05])
-plt.xlabel(&#39;False Positive Rate&#39;)
-plt.ylabel(&#39;True Positive Rate&#39;)
-plt.title(&#39;Some extension of Receiver operating characteristic to multi-class&#39;)
-plt.legend(loc=&amp;quot;lower right&amp;quot;)
-plt.show()
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;img src=&#34;output_6_0.png&#34; alt=&#34;png&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;作为完整的业务流程，每天的预报结果通常以文件存储或写入数据库，这些方法一并封装在程序中就可以了。用python做这些工作通常都是非常简答的。&lt;/p&gt;
 </description>
     </item>
     
     <item>
-      <title>Good to Great Book Review</title>
-      <link>https://wormone.github.io/notebook/post/good-to-great/</link>
-      <pubDate>Thu, 26 Jan 2017 22:53:16 +0800</pubDate>
+      <title>机器学习与环境气象：空气质量预报：3建模、训练和评估</title>
+      <link>https://wormone.github.io/notebook/post/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%8E%E7%8E%AF%E5%A2%83%E6%B0%94%E8%B1%A1%EF%BC%9A%E7%A9%BA%E6%B0%94%E8%B4%A8%E9%87%8F%E9%A2%84%E6%8A%A5%EF%BC%9A3%E5%BB%BA%E6%A8%A1%E3%80%81%E8%AE%AD%E7%BB%83%E5%92%8C%E8%AF%84%E4%BC%B0/</link>
+      <pubDate>Thu, 20 Jul 2017 19:21:15 +0800</pubDate>
       
-      <guid>https://wormone.github.io/notebook/post/good-to-great/</guid>
-      <description>&lt;p&gt;I read &lt;strong&gt;Good to Great in January 2017&lt;/strong&gt;. An awesome read sharing detailed analysis on how good companis became great.&lt;/p&gt;
+      <guid>https://wormone.github.io/notebook/post/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%8E%E7%8E%AF%E5%A2%83%E6%B0%94%E8%B1%A1%EF%BC%9A%E7%A9%BA%E6%B0%94%E8%B4%A8%E9%87%8F%E9%A2%84%E6%8A%A5%EF%BC%9A3%E5%BB%BA%E6%A8%A1%E3%80%81%E8%AE%AD%E7%BB%83%E5%92%8C%E8%AF%84%E4%BC%B0/</guid>
+      <description>&lt;p&gt;Python有很多机器学习方面的软件包（scikit-learn、TensorFlow、Keras等），对于我们应用于构建和训练模型都是非常方便的，官方文档就是很好的示例。工具都有了，剩下的问题就是具体问题具体分析，从理论角度&lt;strong&gt;选取合适的模型和方案&lt;/strong&gt;，然后尝试训练和评估模型的表现，最后获得可以用于日常生产的模型和方案。&lt;/p&gt;
+
+&lt;p&gt;拿我们现在的空气质量预报问题来说，对于某一种污染物或者空气质量指数AQI，其伴随的天气特征是多元的，其关系可以是线性的也可以是非线性的。&lt;strong&gt;从适用的模型上来说&lt;/strong&gt;，人工神经网络模型、基于统计学的广义线性模型、基于决策树的集合方法，都可以尝试。&lt;strong&gt;从适用的方案上来说&lt;/strong&gt;，不同时空（不同地区、不同季节）匹配的条件下，空气质量与天气条件的关系也会不同，因此，对于不同地区、不同季节，应当分别进行建模、训练和评估。&lt;/p&gt;
+
+&lt;p&gt;在实际运用于生产业务的时候，气象上还通常采用&lt;strong&gt;滚动预报&lt;/strong&gt;的方法，比如每天用之前一段时间的数据进行建模并用于未来若干天的预报。&lt;/p&gt;
+
+&lt;p&gt;预报效果怎么样，模型和方案的评估就很重要。评估的对象取决于所关注的目标。一般，通过统计分析正确率、漏报率、空报率、均方根误差（RMSE）、平均绝对误差（MAE）等特征，可以做出较为全面的评估。&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>机器学习与环境气象：空气质量预报：2数据处理</title>
+      <link>https://wormone.github.io/notebook/post/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%8E%E7%8E%AF%E5%A2%83%E6%B0%94%E8%B1%A1%EF%BC%9A%E7%A9%BA%E6%B0%94%E8%B4%A8%E9%87%8F%E9%A2%84%E6%8A%A5%EF%BC%9A2%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86/</link>
+      <pubDate>Wed, 19 Jul 2017 19:21:15 +0800</pubDate>
+      
+      <guid>https://wormone.github.io/notebook/post/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%8E%E7%8E%AF%E5%A2%83%E6%B0%94%E8%B1%A1%EF%BC%9A%E7%A9%BA%E6%B0%94%E8%B4%A8%E9%87%8F%E9%A2%84%E6%8A%A5%EF%BC%9A2%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86/</guid>
+      <description>&lt;p&gt;检查完数据质量问题，就要对发现的必要问题进行处理了。其中最重要的问题就是&lt;strong&gt;数据缺失或异常&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;对于发现的数据缺失或异常，如果其样本量不大，而且可以利用时间和空间关系进行&lt;strong&gt;插补&lt;/strong&gt;的话，那么还算比较好的情况，也是我们比较期望出现并能解决的情况。如果数据缺失或异常的样本量比较大，或者其它原因导致无法进行合理插补以弥补此类数据质量问题，那么我们很可能要被迫放弃这些数据，其后果是可能导致后续工作受到严重限制甚至无法进行，这是我们最头疼的清醒，但愿不要出现。&lt;/p&gt;
+
+&lt;p&gt;在处理完数据质量问题之后，我们要做的工作就是对数据进行必要的转换，也就是进一步信息化，以便后续的模型构建和训练工作。因此，这一步要做的工作是非常重要的，如果没有做好&lt;strong&gt;必要的、合理的&lt;/strong&gt;数据转换工作，后续工作可能就无法取得比较理想的结果。&lt;/p&gt;
+
+&lt;p&gt;以天气预报信息为例，风向（东南西北风）可以转换为数字标号或者360度，风力（微风、3-4级）可以转换为数字标号或者特定风速数值m/s，天气现象（晴、多云、阴、雨雪等等）则通常转换为0、1标签（0表示没出现，1表示有出现）。这些是原始信息的基本转换工作。&lt;/p&gt;
+
+&lt;p&gt;还有一部分转换工作在于从专业角度分析影响结果的哪些&lt;strong&gt;特征&lt;/strong&gt;可以被提取出来。以我们现在的空气质量预报来说，天气条件不仅仅是当时的数值，&lt;strong&gt;天气的变化信息&lt;/strong&gt;反而更为重要，这就需要我们把他们从原始数据中萃取出来。比如，24小时的气温和气压变化、一天当中气温的日较差、风向的变化等等，它们对于空气质量来说，都可能是重要的影响的因素。换句话说，空气质量这样或者那样，伴随着的是这样或者那样的天气特征。因此，这一部分工作，就是机器学习中所说的&lt;strong&gt;特征工程&lt;/strong&gt;。&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>机器学习与环境气象：空气质量预报：1爬取数据</title>
+      <link>https://wormone.github.io/notebook/post/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%8E%E7%8E%AF%E5%A2%83%E6%B0%94%E8%B1%A1%EF%BC%9A%E7%A9%BA%E6%B0%94%E8%B4%A8%E9%87%8F%E9%A2%84%E6%8A%A5%EF%BC%9A1%E7%88%AC%E5%8F%96%E6%95%B0%E6%8D%AE/</link>
+      <pubDate>Tue, 18 Jul 2017 19:21:15 +0800</pubDate>
+      
+      <guid>https://wormone.github.io/notebook/post/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%8E%E7%8E%AF%E5%A2%83%E6%B0%94%E8%B1%A1%EF%BC%9A%E7%A9%BA%E6%B0%94%E8%B4%A8%E9%87%8F%E9%A2%84%E6%8A%A5%EF%BC%9A1%E7%88%AC%E5%8F%96%E6%95%B0%E6%8D%AE/</guid>
+      <description>&lt;p&gt;从网上爬取数据是获取数据的重要途径，相比于文本类型的数据（比如用户评论），气象和环境方面的数据多以数字为主，爬取似乎简单一些。但是对于我们做研究来说，数据的完整性就比较重要，如果数据质量不好，会比较让人头疼。空气质量监测数据的数据源很多，官方的是环保总站公布的数据，还有很多第三方提供数据接口，可以仔细看看，选择&lt;strong&gt;数据质量好的、来源稳定的&lt;/strong&gt;。天气数据来源也很多，比如中国天气网官网，另外也有很多第三方数据源可以获取（他们的数据大多也来自气象部门，差别不大），也要选取&lt;strong&gt;数据质量好的、来源稳定的&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;p&gt;对于我们的问题来说，有一点需要&lt;strong&gt;特别注意&lt;/strong&gt;，那就是无论气象数据还是空气质量数据，不光要有每天实时更新的数据（天气预报数据和空气质量实况数据），还需要有历史实况数据。还好这样的数据源都是可以找到的。&lt;/p&gt;
+
+&lt;p&gt;数据爬取之前需要做的是仔细分析一下数据来源，这可能会大大减少爬取数据的工作量。比如，如果同一数据源，即有电脑浏览器页面又有手机浏览器页面，那么手机浏览器页面一般比较简单，容易分析。再比如，对于Ajax加载的数据，利用浏览器自带的工具仔细分析一下数据来源的请求，比调上来就调用Selenium要简单得多。&lt;/p&gt;
+
+&lt;p&gt;Python的话，我们直接采用requests这个工具就可以很轻松完成数据爬取的工作了。&lt;/p&gt;
+
+&lt;p&gt;爬下来的数据格式可能不是我们想要的，那么接下来要做的工作就是必要的格式转换。通常，json和csv都是很不错的格式。如果数据量比较大，还可以考虑用数据库来存储，对于简单一些的应用，sqlite就够了。对于数据处理，python的numpy和pandas通常都是很好用的工具。对于数据的预览（人工检视），用matplotlib画个曲线图出来看看是很直观的。另外，还可以从数据的基本统计信息来检查数据质量（特别是数据缺失和异常），比如最大最小值、平均值、样本数、方差等等，对于排查数据质量问题都有帮助。&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>机器学习与环境气象：空气质量预报：0方案设计</title>
+      <link>https://wormone.github.io/notebook/post/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%8E%E7%8E%AF%E5%A2%83%E6%B0%94%E8%B1%A1%EF%BC%9A%E7%A9%BA%E6%B0%94%E8%B4%A8%E9%87%8F%E9%A2%84%E6%8A%A5%EF%BC%9A0%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/</link>
+      <pubDate>Mon, 17 Jul 2017 19:21:15 +0800</pubDate>
+      
+      <guid>https://wormone.github.io/notebook/post/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%8E%E7%8E%AF%E5%A2%83%E6%B0%94%E8%B1%A1%EF%BC%9A%E7%A9%BA%E6%B0%94%E8%B4%A8%E9%87%8F%E9%A2%84%E6%8A%A5%EF%BC%9A0%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/</guid>
+      <description>&lt;p&gt;现在到处都是人工智能和机器学习的新闻，气象也在凑热闹。看热闹的不怕事大，我们也来围观。&lt;/p&gt;
+
+&lt;p&gt;话说回来，其实，机器学习在气象预报方面的能力是不能跟在图像语音识别等方面相比的。道理很简单，图像语音识别这类问题是比较明确的，&lt;strong&gt;不确定性&lt;/strong&gt;很小，人工的识别准确率很高，机器学好了可以更高更快。气象预报就不一样了，不管是人工基于天气学原理的分析还是计算机基于数学物理模型的的预报，准确率的水平都不能跟图像语音识别这类问题相比，不确定性还是太高了。如果说机器学习在气象上有好的应用方面的话，一定是那些不确定性相对比较小的地方（比如基于雷达回波的短临天气预报），或者数学物理模型还无法描述的地方（比如气候预测），也许能够取得比常规方法好一些的结果。能好多少，不知道，但是不会有本质的飞跃。&lt;/p&gt;
+
+&lt;p&gt;这里我们做一点简单的工作，基于机器学习的方法来试着做做空气质量预报。&lt;strong&gt;总体思路&lt;/strong&gt;是这样的：从网上获取空气质量的历史数据和实时更新的监测数据，从网上获取天气实况的历史数据和实时更新的天气预报数据，用机器学习的方法发掘空气质量和气象条件之间的关联，构建基于气象因素的空气质量预报模型，最后用天气预报来预测未来同期的空气质量。所以我们的工作分为以下几个部分：&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;爬取空气质量和天气数据。&lt;/li&gt;
+&lt;li&gt;数据信息的转换（为构建和训练模型做准备）。&lt;/li&gt;
+&lt;li&gt;尝试构建和训练模型，并进行评估。&lt;/li&gt;
+&lt;li&gt;实际运用于日常预报工作，实现自动化运作。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Let&amp;rsquo;s GO！&lt;/p&gt;
 </description>
     </item>
     

@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-cn">
   <head>
-	<meta name="generator" content="Hugo 0.19-DEV" />
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <meta name="HandheldFriendly" content="True">
@@ -19,10 +18,10 @@
     <title>
       
       
-         A notebook on data analysis in python 
+         机器学习与环境气象：空气质量预报：0方案设计 
       
     </title>
-    <link rel="canonical" href="https://wormone.github.io/notebook/">
+    <link rel="canonical" href="https://wormone.github.io/notebook/post/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%8E%E7%8E%AF%E5%A2%83%E6%B0%94%E8%B1%A1%EF%BC%9A%E7%A9%BA%E6%B0%94%E8%B4%A8%E9%87%8F%E9%A2%84%E6%8A%A5%EF%BC%9A0%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">
 
     <style>
   * {
@@ -380,8 +379,6 @@
     <link rel="shortcut icon" href="/favicon.ico">
 
     
-      <link href="https://wormone.github.io/notebook/index.xml" rel="alternate" type="application/rss+xml" title="A notebook on data analysis in python" />
-    
   </head>
 
   <body>
@@ -394,49 +391,42 @@
 
 
 <section id=content>
-  <ul class=posts_listing>
+  <h1> 机器学习与环境气象：空气质量预报：0方案设计 </h1>
+
+  <div id=sub-header>
+    July 2017 · 1 minute read
+  </div>
+
+  <div class="entry-content">
+    <p>现在到处都是人工智能和机器学习的新闻，气象也在凑热闹。看热闹的不怕事大，我们也来围观。</p>
+
+<p>话说回来，其实，机器学习在气象预报方面的能力是不能跟在图像语音识别等方面相比的。道理很简单，图像语音识别这类问题是比较明确的，<strong>不确定性</strong>很小，人工的识别准确率很高，机器学好了可以更高更快。气象预报就不一样了，不管是人工基于天气学原理的分析还是计算机基于数学物理模型的的预报，准确率的水平都不能跟图像语音识别这类问题相比，不确定性还是太高了。如果说机器学习在气象上有好的应用方面的话，一定是那些不确定性相对比较小的地方（比如基于雷达回波的短临天气预报），或者数学物理模型还无法描述的地方（比如气候预测），也许能够取得比常规方法好一些的结果。能好多少，不知道，但是不会有本质的飞跃。</p>
+
+<p>这里我们做一点简单的工作，基于机器学习的方法来试着做做空气质量预报。<strong>总体思路</strong>是这样的：从网上获取空气质量的历史数据和实时更新的监测数据，从网上获取天气实况的历史数据和实时更新的天气预报数据，用机器学习的方法发掘空气质量和气象条件之间的关联，构建基于气象因素的空气质量预报模型，最后用天气预报来预测未来同期的空气质量。所以我们的工作分为以下几个部分：</p>
+
+<ol>
+<li>爬取空气质量和天气数据。</li>
+<li>数据信息的转换（为构建和训练模型做准备）。</li>
+<li>尝试构建和训练模型，并进行评估。</li>
+<li>实际运用于日常预报工作，实现自动化运作。</li>
+</ol>
+
+<p>Let&rsquo;s GO！</p>
+
+  </div>
+
+  <div id=links>
     
-      <li>
-        <h2><a href="https://wormone.github.io/notebook/post/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%8E%E7%8E%AF%E5%A2%83%E6%B0%94%E8%B1%A1%EF%BC%9A%E7%A9%BA%E6%B0%94%E8%B4%A8%E9%87%8F%E9%A2%84%E6%8A%A5%EF%BC%9A4%E4%B8%9A%E5%8A%A1%E7%94%9F%E4%BA%A7/">机器学习与环境气象：空气质量预报：4业务生产</a></h2>
-        <div id=date>
-          <time>July 2017</time>
-        </div>
-      </li>
     
-      <li>
-        <h2><a href="https://wormone.github.io/notebook/post/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%8E%E7%8E%AF%E5%A2%83%E6%B0%94%E8%B1%A1%EF%BC%9A%E7%A9%BA%E6%B0%94%E8%B4%A8%E9%87%8F%E9%A2%84%E6%8A%A5%EF%BC%9A3%E5%BB%BA%E6%A8%A1%E3%80%81%E8%AE%AD%E7%BB%83%E5%92%8C%E8%AF%84%E4%BC%B0/">机器学习与环境气象：空气质量预报：3建模、训练和评估</a></h2>
-        <div id=date>
-          <time>July 2017</time>
-        </div>
-      </li>
+      <a class="basic-alignment left" href="https://wormone.github.io/notebook/post/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%8E%E7%8E%AF%E5%A2%83%E6%B0%94%E8%B1%A1%EF%BC%9A%E7%A9%BA%E6%B0%94%E8%B4%A8%E9%87%8F%E9%A2%84%E6%8A%A5%EF%BC%9A1%E7%88%AC%E5%8F%96%E6%95%B0%E6%8D%AE/">机器学习与环境气象：空气质量预报：1爬取数据 &raquo;</a>
     
-      <li>
-        <h2><a href="https://wormone.github.io/notebook/post/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%8E%E7%8E%AF%E5%A2%83%E6%B0%94%E8%B1%A1%EF%BC%9A%E7%A9%BA%E6%B0%94%E8%B4%A8%E9%87%8F%E9%A2%84%E6%8A%A5%EF%BC%9A2%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86/">机器学习与环境气象：空气质量预报：2数据处理</a></h2>
-        <div id=date>
-          <time>July 2017</time>
-        </div>
-      </li>
-    
-      <li>
-        <h2><a href="https://wormone.github.io/notebook/post/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%8E%E7%8E%AF%E5%A2%83%E6%B0%94%E8%B1%A1%EF%BC%9A%E7%A9%BA%E6%B0%94%E8%B4%A8%E9%87%8F%E9%A2%84%E6%8A%A5%EF%BC%9A1%E7%88%AC%E5%8F%96%E6%95%B0%E6%8D%AE/">机器学习与环境气象：空气质量预报：1爬取数据</a></h2>
-        <div id=date>
-          <time>July 2017</time>
-        </div>
-      </li>
-    
-      <li>
-        <h2><a href="https://wormone.github.io/notebook/post/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%8E%E7%8E%AF%E5%A2%83%E6%B0%94%E8%B1%A1%EF%BC%9A%E7%A9%BA%E6%B0%94%E8%B4%A8%E9%87%8F%E9%A2%84%E6%8A%A5%EF%BC%9A0%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">机器学习与环境气象：空气质量预报：0方案设计</a></h2>
-        <div id=date>
-          <time>July 2017</time>
-        </div>
-      </li>
-    
-  </ul>
+  </div>
 </section>
 
   </div>
   
 </body>
 </html>
+
 
 

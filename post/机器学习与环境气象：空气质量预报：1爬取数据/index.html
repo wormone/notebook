@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-cn">
   <head>
-	<meta name="generator" content="Hugo 0.19-DEV" />
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <meta name="HandheldFriendly" content="True">
@@ -19,10 +18,10 @@
     <title>
       
       
-         A notebook on data analysis in python 
+         机器学习与环境气象：空气质量预报：1爬取数据 
       
     </title>
-    <link rel="canonical" href="https://wormone.github.io/notebook/">
+    <link rel="canonical" href="https://wormone.github.io/notebook/post/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%8E%E7%8E%AF%E5%A2%83%E6%B0%94%E8%B1%A1%EF%BC%9A%E7%A9%BA%E6%B0%94%E8%B4%A8%E9%87%8F%E9%A2%84%E6%8A%A5%EF%BC%9A1%E7%88%AC%E5%8F%96%E6%95%B0%E6%8D%AE/">
 
     <style>
   * {
@@ -380,8 +379,6 @@
     <link rel="shortcut icon" href="/favicon.ico">
 
     
-      <link href="https://wormone.github.io/notebook/index.xml" rel="alternate" type="application/rss+xml" title="A notebook on data analysis in python" />
-    
   </head>
 
   <body>
@@ -394,49 +391,39 @@
 
 
 <section id=content>
-  <ul class=posts_listing>
+  <h1> 机器学习与环境气象：空气质量预报：1爬取数据 </h1>
+
+  <div id=sub-header>
+    July 2017 · 1 minute read
+  </div>
+
+  <div class="entry-content">
+    <p>从网上爬取数据是获取数据的重要途径，相比于文本类型的数据（比如用户评论），气象和环境方面的数据多以数字为主，爬取似乎简单一些。但是对于我们做研究来说，数据的完整性就比较重要，如果数据质量不好，会比较让人头疼。空气质量监测数据的数据源很多，官方的是环保总站公布的数据，还有很多第三方提供数据接口，可以仔细看看，选择<strong>数据质量好的、来源稳定的</strong>。天气数据来源也很多，比如中国天气网官网，另外也有很多第三方数据源可以获取（他们的数据大多也来自气象部门，差别不大），也要选取<strong>数据质量好的、来源稳定的</strong>。</p>
+
+<p>对于我们的问题来说，有一点需要<strong>特别注意</strong>，那就是无论气象数据还是空气质量数据，不光要有每天实时更新的数据（天气预报数据和空气质量实况数据），还需要有历史实况数据。还好这样的数据源都是可以找到的。</p>
+
+<p>数据爬取之前需要做的是仔细分析一下数据来源，这可能会大大减少爬取数据的工作量。比如，如果同一数据源，即有电脑浏览器页面又有手机浏览器页面，那么手机浏览器页面一般比较简单，容易分析。再比如，对于Ajax加载的数据，利用浏览器自带的工具仔细分析一下数据来源的请求，比调上来就调用Selenium要简单得多。</p>
+
+<p>Python的话，我们直接采用requests这个工具就可以很轻松完成数据爬取的工作了。</p>
+
+<p>爬下来的数据格式可能不是我们想要的，那么接下来要做的工作就是必要的格式转换。通常，json和csv都是很不错的格式。如果数据量比较大，还可以考虑用数据库来存储，对于简单一些的应用，sqlite就够了。对于数据处理，python的numpy和pandas通常都是很好用的工具。对于数据的预览（人工检视），用matplotlib画个曲线图出来看看是很直观的。另外，还可以从数据的基本统计信息来检查数据质量（特别是数据缺失和异常），比如最大最小值、平均值、样本数、方差等等，对于排查数据质量问题都有帮助。</p>
+
+  </div>
+
+  <div id=links>
     
-      <li>
-        <h2><a href="https://wormone.github.io/notebook/post/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%8E%E7%8E%AF%E5%A2%83%E6%B0%94%E8%B1%A1%EF%BC%9A%E7%A9%BA%E6%B0%94%E8%B4%A8%E9%87%8F%E9%A2%84%E6%8A%A5%EF%BC%9A4%E4%B8%9A%E5%8A%A1%E7%94%9F%E4%BA%A7/">机器学习与环境气象：空气质量预报：4业务生产</a></h2>
-        <div id=date>
-          <time>July 2017</time>
-        </div>
-      </li>
+      <a class="basic-alignment left" href="https://wormone.github.io/notebook/post/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%8E%E7%8E%AF%E5%A2%83%E6%B0%94%E8%B1%A1%EF%BC%9A%E7%A9%BA%E6%B0%94%E8%B4%A8%E9%87%8F%E9%A2%84%E6%8A%A5%EF%BC%9A0%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">&laquo; 机器学习与环境气象：空气质量预报：0方案设计</a>
     
-      <li>
-        <h2><a href="https://wormone.github.io/notebook/post/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%8E%E7%8E%AF%E5%A2%83%E6%B0%94%E8%B1%A1%EF%BC%9A%E7%A9%BA%E6%B0%94%E8%B4%A8%E9%87%8F%E9%A2%84%E6%8A%A5%EF%BC%9A3%E5%BB%BA%E6%A8%A1%E3%80%81%E8%AE%AD%E7%BB%83%E5%92%8C%E8%AF%84%E4%BC%B0/">机器学习与环境气象：空气质量预报：3建模、训练和评估</a></h2>
-        <div id=date>
-          <time>July 2017</time>
-        </div>
-      </li>
     
-      <li>
-        <h2><a href="https://wormone.github.io/notebook/post/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%8E%E7%8E%AF%E5%A2%83%E6%B0%94%E8%B1%A1%EF%BC%9A%E7%A9%BA%E6%B0%94%E8%B4%A8%E9%87%8F%E9%A2%84%E6%8A%A5%EF%BC%9A2%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86/">机器学习与环境气象：空气质量预报：2数据处理</a></h2>
-        <div id=date>
-          <time>July 2017</time>
-        </div>
-      </li>
+      <a class="basic-alignment left" href="https://wormone.github.io/notebook/post/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%8E%E7%8E%AF%E5%A2%83%E6%B0%94%E8%B1%A1%EF%BC%9A%E7%A9%BA%E6%B0%94%E8%B4%A8%E9%87%8F%E9%A2%84%E6%8A%A5%EF%BC%9A2%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86/">机器学习与环境气象：空气质量预报：2数据处理 &raquo;</a>
     
-      <li>
-        <h2><a href="https://wormone.github.io/notebook/post/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%8E%E7%8E%AF%E5%A2%83%E6%B0%94%E8%B1%A1%EF%BC%9A%E7%A9%BA%E6%B0%94%E8%B4%A8%E9%87%8F%E9%A2%84%E6%8A%A5%EF%BC%9A1%E7%88%AC%E5%8F%96%E6%95%B0%E6%8D%AE/">机器学习与环境气象：空气质量预报：1爬取数据</a></h2>
-        <div id=date>
-          <time>July 2017</time>
-        </div>
-      </li>
-    
-      <li>
-        <h2><a href="https://wormone.github.io/notebook/post/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%8E%E7%8E%AF%E5%A2%83%E6%B0%94%E8%B1%A1%EF%BC%9A%E7%A9%BA%E6%B0%94%E8%B4%A8%E9%87%8F%E9%A2%84%E6%8A%A5%EF%BC%9A0%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">机器学习与环境气象：空气质量预报：0方案设计</a></h2>
-        <div id=date>
-          <time>July 2017</time>
-        </div>
-      </li>
-    
-  </ul>
+  </div>
 </section>
 
   </div>
   
 </body>
 </html>
+
 
 
