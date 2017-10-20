@@ -18,10 +18,10 @@
     <title>
       
       
-         机器学习与环境气象：空气质量预报：4业务生产 
+         气象数据处理和绘图常用的python软件包 
       
     </title>
-    <link rel="canonical" href="https://wormone.github.io/notebook/post/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%8E%E7%8E%AF%E5%A2%83%E6%B0%94%E8%B1%A1%EF%BC%9A%E7%A9%BA%E6%B0%94%E8%B4%A8%E9%87%8F%E9%A2%84%E6%8A%A5%EF%BC%9A4%E4%B8%9A%E5%8A%A1%E7%94%9F%E4%BA%A7/">
+    <link rel="canonical" href="https://wormone.github.io/notebook/post/%E6%B0%94%E8%B1%A1%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86%E5%92%8C%E7%BB%98%E5%9B%BE%E5%B8%B8%E7%94%A8%E7%9A%84python%E8%BD%AF%E4%BB%B6%E5%8C%85/">
 
     <style>
   * {
@@ -391,27 +391,57 @@
 
 
 <section id=content>
-  <h1> 机器学习与环境气象：空气质量预报：4业务生产 </h1>
+  <h1> 气象数据处理和绘图常用的python软件包 </h1>
 
   <div id=sub-header>
-    July 2017 · 1 minute read
+    January 2017 · 1 minute read
   </div>
 
   <div class="entry-content">
-    <p>建立模型和方案的最终目的是能够应用于未来每天的实际预测业务生产中。因此，<strong>很重要的一点</strong>必须记住，那就是未来可用于预测的特征必须能够和之前建模训练时采用的特征保持完全一致。也就是说，如果建模训练时采用的特征在后来不可获取了，那么模型也就无法应用到实际的日常生产中去了。所以，在建模训练的时候就必须关注这个问题。在条件不能再满足的情况下，重新建模训练甚至重新做特征工程都是有可能的。</p>
+    
 
-<p>模型方案确定可行之后，要做的就是业务化部署了。这一部份工作就是对预报方案的封装，然后设定定时自动化任务并记录运行日志。如果是在linux系统上，crontab较为常用。如果实在windows上，也可以配置任务计划。此外，python也有软件包（常用apscheduler）可以做定时任务配置。</p>
+<h3 id="1-基本问题">1. 基本问题</h3>
 
-<p>既然是业务化生产，就要监控各种可能出现的异常情况，用python的logging模块可以很好的承担这个工作。对于各种异常情况造成的数据缺失情况，也应有相应的处理措施，具体问题需要具体分析，以保障日常生产。</p>
+<pre><code>- datetime, canlendar：时间和日期处理
+- re：正则处理
+- glob：文件名匹配
+- os：系统路径等操作
+</code></pre>
 
-<p>作为完整的业务流程，每天的预报结果通常以文件存储或写入数据库，这些方法一并封装在程序中就可以了。用python做这些工作通常都是非常简单的。</p>
+<h3 id="2-特定格式">2. 特定格式</h3>
+
+<pre><code>- netCDF4：netCDF数据读写
+- pygrib：grib数据读写
+- struct：二进制数据读写
+- gdal：geotiff等数据读写
+</code></pre>
+
+<h3 id="3-计算分析">3. 计算分析</h3>
+
+<pre><code>- numpy, scipy：科学计算
+- pandas：数据结构框架
+- scikit-learn：统计学和机器学习模型
+</code></pre>
+
+<h3 id="4-绘图">4. 绘图</h3>
+
+<pre><code>- matplotlib, basemap：几乎所有类别的气象图形
+- seaborn：更美观一些的图形
+</code></pre>
+
+<h3 id="5-业务自动化">5. 业务自动化</h3>
+
+<pre><code>- apscheduler：任务管理
+- logging：日志记录
+- pyWRF：WRF管理
+</code></pre>
 
   </div>
 
   <div id=links>
     
-      <a class="basic-alignment left" href="https://wormone.github.io/notebook/post/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%8E%E7%8E%AF%E5%A2%83%E6%B0%94%E8%B1%A1%EF%BC%9A%E7%A9%BA%E6%B0%94%E8%B4%A8%E9%87%8F%E9%A2%84%E6%8A%A5%EF%BC%9A3%E5%BB%BA%E6%A8%A1%E3%80%81%E8%AE%AD%E7%BB%83%E5%92%8C%E8%AF%84%E4%BC%B0/">&laquo; 机器学习与环境气象：空气质量预报：3建模、训练和评估</a>
     
+      <a class="basic-alignment left" href="https://wormone.github.io/notebook/post/%E6%B0%94%E8%B1%A1%E6%95%B0%E6%8D%AE%E6%9F%A5%E8%AF%A2%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1%E7%9A%84%E7%AE%80%E8%A6%81%E6%96%B9%E6%A1%88/">气象数据查询接口设计的简要方案 &raquo;</a>
     
   </div>
 </section>

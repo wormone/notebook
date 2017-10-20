@@ -21,7 +21,7 @@
 
 &lt;p&gt;既然是业务化生产，就要监控各种可能出现的异常情况，用python的logging模块可以很好的承担这个工作。对于各种异常情况造成的数据缺失情况，也应有相应的处理措施，具体问题需要具体分析，以保障日常生产。&lt;/p&gt;
 
-&lt;p&gt;作为完整的业务流程，每天的预报结果通常以文件存储或写入数据库，这些方法一并封装在程序中就可以了。用python做这些工作通常都是非常简答的。&lt;/p&gt;
+&lt;p&gt;作为完整的业务流程，每天的预报结果通常以文件存储或写入数据库，这些方法一并封装在程序中就可以了。用python做这些工作通常都是非常简单的。&lt;/p&gt;
 </description>
     </item>
     
@@ -97,6 +97,86 @@
 &lt;/ol&gt;
 
 &lt;p&gt;Let&amp;rsquo;s GO！&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>气象数据查询接口设计的简要方案</title>
+      <link>https://wormone.github.io/notebook/post/%E6%B0%94%E8%B1%A1%E6%95%B0%E6%8D%AE%E6%9F%A5%E8%AF%A2%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1%E7%9A%84%E7%AE%80%E8%A6%81%E6%96%B9%E6%A1%88/</link>
+      <pubDate>Thu, 13 Apr 2017 19:21:15 +0800</pubDate>
+      
+      <guid>https://wormone.github.io/notebook/post/%E6%B0%94%E8%B1%A1%E6%95%B0%E6%8D%AE%E6%9F%A5%E8%AF%A2%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1%E7%9A%84%E7%AE%80%E8%A6%81%E6%96%B9%E6%A1%88/</guid>
+      <description>&lt;p&gt;这里我们指的是存储在数据库里的&lt;strong&gt;站点气象数据&lt;/strong&gt;，存储在文件中的格点数据另作讨论。&lt;/p&gt;
+
+&lt;p&gt;气象数据的特点是包括时间、地点、层次、要素等&lt;strong&gt;多个维度&lt;/strong&gt;，通常以特定文本格式存储的数据不便于数据的提取和查询，尤其当这种提取和查询经常发生的时候。因此，导入关系型数据库，然后编写查询方法，对用户提供查询服务就是非常必要的了。&lt;/p&gt;
+
+&lt;p&gt;通常，数据源的格式是固定的，而且随着时间的延伸，数据会不断更新，那么编写一套数据读取和写入数据库的程序就会方便后续的数据更新工作了。&lt;/p&gt;
+
+&lt;p&gt;python操作数据库有&lt;strong&gt;两种方式&lt;/strong&gt;，一种是不同数据库采用不同的软件包（如对于MS SQL可以使用pymssql，对于MySQL可以使用pymysql，对于sqlite可以使用sqlite3），一种是基于对象-关系映射模型（ORM）的软件包（如SQLAlchemy）。两种方式都是比较容易的，官方文档都有很好的示例，参照按部就班写就可以了。使用SQLAlchemy的好处是可以更容易的切换不同数据库。&lt;/p&gt;
+
+&lt;p&gt;数据库表的设计应当看数据的具体情况，具体分析，没有太多可说的。当写入和读取数据库数据的方法写好之后，就是后续的调用和封装工作了。读取的方法有哪些，取决于查询的需求有哪些，一一对应就可以了。通常，查询都包括时间范围、空间范围、要素名称、统计方式（如平均值、累计值、最大最小值）等方面。&lt;/p&gt;
+
+&lt;p&gt;接下来就是对外提供数据查询服务了，可能直接被用户调用，也可能被其它外部程序调用。数据查询接口一般只涉及到数据的读取，很少涉及到数据的写入，因此来说功能比较单一，实现起来也比较容易。对于上述写好的读取方法，只需要利用HTTP服务封装一下就可以了。我们采用&lt;strong&gt;Flask&lt;/strong&gt;或&lt;strong&gt;Tornado&lt;/strong&gt;框架就可以很轻松完成任务了，其中需要注意的基本问题包括：&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;url的设计应符合约定俗成的规范，清晰明了。&lt;/li&gt;
+&lt;li&gt;只编写和允许必要的请求方法，禁止不必要的请求。&lt;/li&gt;
+&lt;li&gt;接口说明文档应编写好并放在一个类似/api/help的url里以便用户查阅。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;进一步，可能遇到的问题包括：&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;如果有查询不同结果格式的需求，应在查询结果之后增加一个统一的格式处理方法。&lt;/li&gt;
+&lt;li&gt;如果有区分用户权限的功能需求，应在查询方法之前增加一个权限管理模块。&lt;/li&gt;
+&lt;li&gt;如果有提高服务的性能的需求，应相应的从硬件配置、缓方式、多任务并行等方面解决。&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>气象数据处理和绘图常用的python软件包</title>
+      <link>https://wormone.github.io/notebook/post/%E6%B0%94%E8%B1%A1%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86%E5%92%8C%E7%BB%98%E5%9B%BE%E5%B8%B8%E7%94%A8%E7%9A%84python%E8%BD%AF%E4%BB%B6%E5%8C%85/</link>
+      <pubDate>Fri, 13 Jan 2017 19:21:15 +0800</pubDate>
+      
+      <guid>https://wormone.github.io/notebook/post/%E6%B0%94%E8%B1%A1%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86%E5%92%8C%E7%BB%98%E5%9B%BE%E5%B8%B8%E7%94%A8%E7%9A%84python%E8%BD%AF%E4%BB%B6%E5%8C%85/</guid>
+      <description>
+
+&lt;h3 id=&#34;1-基本问题&#34;&gt;1. 基本问题&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;- datetime, canlendar：时间和日期处理
+- re：正则处理
+- glob：文件名匹配
+- os：系统路径等操作
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;2-特定格式&#34;&gt;2. 特定格式&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;- netCDF4：netCDF数据读写
+- pygrib：grib数据读写
+- struct：二进制数据读写
+- gdal：geotiff等数据读写
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;3-计算分析&#34;&gt;3. 计算分析&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;- numpy, scipy：科学计算
+- pandas：数据结构框架
+- scikit-learn：统计学和机器学习模型
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;4-绘图&#34;&gt;4. 绘图&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;- matplotlib, basemap：几乎所有类别的气象图形
+- seaborn：更美观一些的图形
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;5-业务自动化&#34;&gt;5. 业务自动化&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;- apscheduler：任务管理
+- logging：日志记录
+- pyWRF：WRF管理
+&lt;/code&gt;&lt;/pre&gt;
 </description>
     </item>
     
