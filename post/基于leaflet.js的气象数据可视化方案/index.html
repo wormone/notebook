@@ -18,10 +18,10 @@
     <title>
       
       
-         气象数据处理和绘图常用的python软件包 
+         基于leaflet.js的气象数据可视化方案 
       
     </title>
-    <link rel="canonical" href="https://wormone.github.io/notebook/post/%E6%B0%94%E8%B1%A1%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86%E5%92%8C%E7%BB%98%E5%9B%BE%E5%B8%B8%E7%94%A8%E7%9A%84python%E8%BD%AF%E4%BB%B6%E5%8C%85/">
+    <link rel="canonical" href="https://wormone.github.io/notebook/post/%E5%9F%BA%E4%BA%8Eleaflet.js%E7%9A%84%E6%B0%94%E8%B1%A1%E6%95%B0%E6%8D%AE%E5%8F%AF%E8%A7%86%E5%8C%96%E6%96%B9%E6%A1%88/">
 
     <style>
   * {
@@ -391,61 +391,31 @@
 
 
 <section id=content>
-  <h1> 气象数据处理和绘图常用的python软件包 </h1>
+  <h1> 基于leaflet.js的气象数据可视化方案 </h1>
 
   <div id=sub-header>
-    January 2017 · 1 minute read
+    November 2016 · 1 minute read
   </div>
 
   <div class="entry-content">
-    
+    <p>气象数据是多维度的数据，包括时间、空间、要素名等。空间属性是气象数据的基本属性。</p>
 
-<h3 id="1-基本问题">1. 基本问题</h3>
+<p>气象数据的可视化离不开空间分布的展示。单点数据以地理坐标为基础，通常在地图上以数据、符号、颜色等标识。例如风向通常以风杆或者带有方向箭头的小图标标识。网格化数据通常以等值线（contour）、填充色（contourf）或色块（imagesc，pcolor）标识。</p>
 
-<pre><code>- datetime, canlendar：时间和日期处理
-- re：正则处理
-- glob：文件名匹配
-- os, shutil：系统路径等操作
-</code></pre>
+<p>上述两类数据均可以用<strong>geojson</strong>的格式组织起来交由<strong>leaflet.js</strong>在页面上展示。</p>
 
-<h3 id="2-特定格式">2. 特定格式</h3>
+<p>单点的数据很简单。网格化数据是以等值线分析为基础的，这个工作可以交由我们熟悉的<strong>matplotlib</strong>来完成，其输出结果再由<strong>geojsoncontour</strong>这个第三方软件包转换为geojson格式即可（该软件包在github上可以找到，其中的一个小bug已被我们修复）。</p>
 
-<pre><code>- netCDF4：netCDF数据读写
-- pygrib：grib数据读写
-- struct：二进制数据读写
-- gdal：geotiff等数据读写
-</code></pre>
-
-<h3 id="3-计算分析">3. 计算分析</h3>
-
-<pre><code>- numpy, scipy：科学计算
-- pandas：数据结构框架
-- scikit-learn：统计学和机器学习模型
-</code></pre>
-
-<h3 id="4-绘图">4. 绘图</h3>
-
-<pre><code>- matplotlib, basemap：几乎所有类别的气象图形
-- seaborn：更美观一些的图形
-</code></pre>
-
-<h3 id="5-业务自动化">5. 业务自动化</h3>
-
-<pre><code>- apscheduler：定时任务管理
-- multiprocessing：多进程并行计算
-- celery：分布式并行框架
-- logging：日志记录
-- pyWRF：WRF管理
-</code></pre>
+<p>leaflet.js提供了丰富的方法用户展示基于GIS的信息，并提供了很多交互操作的功能，官方文档都有很好的示例。</p>
 
   </div>
 
   <div id=links>
     
-      <a class="basic-alignment left" href="https://wormone.github.io/notebook/post/%E5%9F%BA%E4%BA%8Eleaflet.js%E7%9A%84%E6%B0%94%E8%B1%A1%E6%95%B0%E6%8D%AE%E5%8F%AF%E8%A7%86%E5%8C%96%E6%96%B9%E6%A1%88/">&laquo; 基于leaflet.js的气象数据可视化方案</a>
+      <a class="basic-alignment left" href="https://wormone.github.io/notebook/post/%E5%9F%BA%E4%BA%8E%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BB%84%E5%90%88%E6%96%B9%E6%B3%95%E7%9A%84%E6%B0%94%E5%80%99%E9%A2%84%E6%B5%8B/">&laquo; 基于机器学习的组合方法的气候预测</a>
     
     
-      <a class="basic-alignment left" href="https://wormone.github.io/notebook/post/%E6%B0%94%E8%B1%A1%E6%95%B0%E6%8D%AE%E6%9F%A5%E8%AF%A2%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1%E7%9A%84%E7%AE%80%E8%A6%81%E6%96%B9%E6%A1%88/">气象数据查询接口设计的简要方案 &raquo;</a>
+      <a class="basic-alignment left" href="https://wormone.github.io/notebook/post/%E6%B0%94%E8%B1%A1%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86%E5%92%8C%E7%BB%98%E5%9B%BE%E5%B8%B8%E7%94%A8%E7%9A%84python%E8%BD%AF%E4%BB%B6%E5%8C%85/">气象数据处理和绘图常用的python软件包 &raquo;</a>
     
   </div>
 </section>

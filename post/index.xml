@@ -106,7 +106,7 @@
       <pubDate>Thu, 13 Apr 2017 19:21:15 +0800</pubDate>
       
       <guid>https://wormone.github.io/notebook/post/%E6%B0%94%E8%B1%A1%E6%95%B0%E6%8D%AE%E6%9F%A5%E8%AF%A2%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1%E7%9A%84%E7%AE%80%E8%A6%81%E6%96%B9%E6%A1%88/</guid>
-      <description>&lt;p&gt;这里我们指的是存储在数据库里的&lt;strong&gt;站点气象数据&lt;/strong&gt;，存储在文件中的格点数据另作讨论。&lt;/p&gt;
+      <description>&lt;p&gt;这里我们指的是存储在数据库里的&lt;strong&gt;站点气象数据&lt;/strong&gt;，存储在文件中的格点数据是另一回事了。&lt;/p&gt;
 
 &lt;p&gt;气象数据的特点是包括时间、地点、层次、要素等&lt;strong&gt;多个维度&lt;/strong&gt;，通常以特定文本格式存储的数据不便于数据的提取和查询，尤其当这种提取和查询经常发生的时候。因此，导入关系型数据库，然后编写查询方法，对用户提供查询服务就是非常必要的了。&lt;/p&gt;
 
@@ -147,7 +147,7 @@
 &lt;pre&gt;&lt;code&gt;- datetime, canlendar：时间和日期处理
 - re：正则处理
 - glob：文件名匹配
-- os：系统路径等操作
+- os, shutil：系统路径等操作
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;h3 id=&#34;2-特定格式&#34;&gt;2. 特定格式&lt;/h3&gt;
@@ -173,9 +173,110 @@
 
 &lt;h3 id=&#34;5-业务自动化&#34;&gt;5. 业务自动化&lt;/h3&gt;
 
-&lt;pre&gt;&lt;code&gt;- apscheduler：任务管理
+&lt;pre&gt;&lt;code&gt;- apscheduler：定时任务管理
+- multiprocessing：多进程并行计算
+- celery：分布式并行框架
 - logging：日志记录
 - pyWRF：WRF管理
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>基于leaflet.js的气象数据可视化方案</title>
+      <link>https://wormone.github.io/notebook/post/%E5%9F%BA%E4%BA%8Eleaflet.js%E7%9A%84%E6%B0%94%E8%B1%A1%E6%95%B0%E6%8D%AE%E5%8F%AF%E8%A7%86%E5%8C%96%E6%96%B9%E6%A1%88/</link>
+      <pubDate>Sun, 13 Nov 2016 19:21:15 +0800</pubDate>
+      
+      <guid>https://wormone.github.io/notebook/post/%E5%9F%BA%E4%BA%8Eleaflet.js%E7%9A%84%E6%B0%94%E8%B1%A1%E6%95%B0%E6%8D%AE%E5%8F%AF%E8%A7%86%E5%8C%96%E6%96%B9%E6%A1%88/</guid>
+      <description>&lt;p&gt;气象数据是多维度的数据，包括时间、空间、要素名等。空间属性是气象数据的基本属性。&lt;/p&gt;
+
+&lt;p&gt;气象数据的可视化离不开空间分布的展示。单点数据以地理坐标为基础，通常在地图上以数据、符号、颜色等标识。例如风向通常以风杆或者带有方向箭头的小图标标识。网格化数据通常以等值线（contour）、填充色（contourf）或色块（imagesc，pcolor）标识。&lt;/p&gt;
+
+&lt;p&gt;上述两类数据均可以用&lt;strong&gt;geojson&lt;/strong&gt;的格式组织起来交由&lt;strong&gt;leaflet.js&lt;/strong&gt;在页面上展示。&lt;/p&gt;
+
+&lt;p&gt;单点的数据很简单。网格化数据是以等值线分析为基础的，这个工作可以交由我们熟悉的&lt;strong&gt;matplotlib&lt;/strong&gt;来完成，其输出结果再由&lt;strong&gt;geojsoncontour&lt;/strong&gt;这个第三方软件包转换为geojson格式即可（该软件包在github上可以找到，其中的一个小bug已被我们修复）。&lt;/p&gt;
+
+&lt;p&gt;leaflet.js提供了丰富的方法用户展示基于GIS的信息，并提供了很多交互操作的功能，官方文档都有很好的示例。&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>基于机器学习的组合方法的气候预测</title>
+      <link>https://wormone.github.io/notebook/post/%E5%9F%BA%E4%BA%8E%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BB%84%E5%90%88%E6%96%B9%E6%B3%95%E7%9A%84%E6%B0%94%E5%80%99%E9%A2%84%E6%B5%8B/</link>
+      <pubDate>Thu, 13 Oct 2016 19:21:15 +0800</pubDate>
+      
+      <guid>https://wormone.github.io/notebook/post/%E5%9F%BA%E4%BA%8E%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BB%84%E5%90%88%E6%96%B9%E6%B3%95%E7%9A%84%E6%B0%94%E5%80%99%E9%A2%84%E6%B5%8B/</guid>
+      <description>
+
+&lt;h3 id=&#34;1-气候预测的关键科学问题和方法&#34;&gt;1. 气候预测的关键科学问题和方法&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;- 关键科学问题
+    - 气候系统：复杂的、高度非线性的、开放的巨系统
+    - 气候系统的可预报性：外部强迫和内部过程
+- 预测方法
+    - 统计学：统计气候学
+    - 数值模式：气候系统物理模型的数学描述和计算机应用
+    - 动力统计：数值模式 + 统计学
+    - 机器学习额
+        - 机器学习是让计算机程序随着经验积累自动提高性能
+        - 机器学习与统计学的联系和区别
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;2-机器学习-vs-统计学&#34;&gt;2. 机器学习 Vs 统计学&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;- 统计学和机器学习的文化差异和本质区别
+    - 统计学更关心模型的可解释性
+        更多是关于问题本质的一个个检验，
+        目标是建立一个可以解释的问题的模型，
+        然而很多问题的复杂性使得严谨的统计模型无法被构建出来。
+    - 机器学习更关心模型的预测能力
+        目标是搭建一套高效可靠的系统，
+        能够持续的预测未来并且稳定的工作，
+        即使这种预测缺乏完美的解释。
+- 机器学习与统计学是互补的吗？
+    - http://synchuman.baijia.baidu.com/article/283931
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;3-机器学习的组合方法&#34;&gt;3. 机器学习的组合方法&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;- 组合的目的
+    - 将若干基于某种算法的估计结合起来，从而提高泛化能力
+- 组合方法的分类和举例
+    - 均值法（Averaging methods）
+        - 装袋（Bagging）
+        - 随机森林（Forests of randomized trees）
+    - 提升法（Boosting methods）
+        - 自适应提升（AdaBoost）
+        - 梯度树提升（Gradient Tree Boosting）
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;4-中国降水的气候预测试验&#34;&gt;4. 中国降水的气候预测试验&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;- 基础数据
+    - 中国 160 个国际气候交换站 1951 年 1 月至今逐月降水量
+    - 百项气候系统指数集：88 项大气环流指数、26 项海温指数、16 项其他指数
+- 关键技术：以夏季（JJA）降水量预测为例
+    - 设定预测目标
+        - 以各站当年夏季降水量为原始目标
+        - 以 1981-2010 为气候基准期，计算历年夏季降水量距平百分率
+        - 以某种标准将降水量划分为若干等级作为预测目标 Y
+    - 预测因子筛选
+        - 以前一年 7 月至当年 4 月各项气候系统指数为候选因子
+        - 计算 Pearson 相关系数和 Spearman 相关系数，并进行显著性检验
+        - 通过显著性检验的因子构成预测因子 X
+    - 组合方法和交叉验证
+        - 构建组合分类器
+            - 均值法：Bagging, RandomForest, ExtraTrees
+            - 提升法：AdaBoost, GradientBoosting
+        - 交叉验证（分类器性能评价）
+            - 样本时段：1951-2010 共 60 年
+            - 迭代器：采用 Stratified k-fold
+            - 计算交叉验证得分 S
+            - S 减去气候概率，即为预测技巧得分
+    - 业务化方案
+        - 每年年初开始自动发布当年夏季降水量预测
+        - 单站预测和区域分布图均可自动化制作
+        - 组合方法同时可以预测出单站各降水等级出现的概率
 &lt;/code&gt;&lt;/pre&gt;
 </description>
     </item>
