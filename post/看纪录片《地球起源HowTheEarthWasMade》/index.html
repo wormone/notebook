@@ -18,10 +18,10 @@
     <title>
       
       
-         机器学习与环境气象：空气质量预报：4业务生产 
+         看纪录片《地球起源HowTheWorldWasMade》 
       
     </title>
-    <link rel="canonical" href="https://wormone.github.io/notebook/post/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%8E%E7%8E%AF%E5%A2%83%E6%B0%94%E8%B1%A1%EF%BC%9A%E7%A9%BA%E6%B0%94%E8%B4%A8%E9%87%8F%E9%A2%84%E6%8A%A5%EF%BC%9A4%E4%B8%9A%E5%8A%A1%E7%94%9F%E4%BA%A7/">
+    <link rel="canonical" href="https://wormone.github.io/notebook/post/%E7%9C%8B%E7%BA%AA%E5%BD%95%E7%89%87%E3%80%8A%E5%9C%B0%E7%90%83%E8%B5%B7%E6%BA%90HowTheEarthWasMade%E3%80%8B/">
 
     <style>
   * {
@@ -391,29 +391,29 @@
 
 
 <section id=content>
-  <h1> 机器学习与环境气象：空气质量预报：4业务生产 </h1>
+  <h1> 看纪录片《地球起源HowTheWorldWasMade》 </h1>
 
   <div id=sub-header>
-    July 2017 · 1 minute read
+    September 2017 · 1 minute read
   </div>
 
   <div class="entry-content">
-    <p>建立模型和方案的最终目的是能够应用于未来每天的实际预测业务生产中。因此，<strong>很重要的一点</strong>必须记住，那就是未来可用于预测的特征必须能够和之前建模训练时采用的特征保持完全一致。也就是说，如果建模训练时采用的特征在后来不可获取了，那么模型也就无法应用到实际的日常生产中去了。所以，在建模训练的时候就必须关注这个问题。在条件不能再满足的情况下，重新建模训练甚至重新做特征工程都是有可能的。</p>
+    <p>这一集讲的是北美五大湖的形成。</p>
 
-<p>模型方案确定可行之后，要做的就是业务化部署了。这一部份工作就是对预报方案的封装，然后设定定时自动化任务并记录运行日志。如果是在linux系统上，crontab较为常用。如果实在windows上，也可以配置任务计划。此外，python也有软件包（常用apscheduler）可以做定时任务配置。</p>
+<p>在我们普通人的眼里，我们游玩的山水风景都是不变的景观。其实任何一个地方的自然环境都是在不断演变着的，只是因为当我们用自己的的时间尺度来衡量时，这些变化显得<strong>太小</strong>或者<strong>太慢</strong>以至于被忽略了。</p>
 
-<p>既然是业务化生产，就要监控各种可能出现的异常情况，用python的logging模块可以很好的承担这个工作。对于各种异常情况造成的数据缺失情况，也应有相应的处理措施，具体问题需要具体分析，以保障日常生产。</p>
+<p>然而，在地质学家眼中，一切都不同了。最早研究北美五大湖的地质学家测量发现，大瀑布每年以0.3米的速度侵蚀岩石，并由此推算出了五大湖的形成时间（再后来的研究发现侵蚀速度是每年0.9米）。在地质学家的眼里，如今的一切都是<strong>动态演变过程</strong>中的一个微小<strong>片段</strong>，地貌特征、地层结构、古生物化石、岩石类型、沉积物等等都无时无刻不伴随着这种演变，因而蕴藏着这种演变的秘密——它的<strong>过去和未来</strong>！</p>
 
-<p>作为完整的业务流程，每天的预报结果通常以文件存储或写入数据库，这些方法一并封装在程序中就可以了。用python做这些工作通常都是非常简单的。</p>
+<p>湖盆下的巨大盐矿、湖盆的白云岩、地表冰丘地貌、海洋生物化石、岩石上的冰川擦痕、古河系……当地质学家把越来越多的证据汇集起来，就能够推测出北美五大湖的形成过程，揭示出那些巨大的变迁。更有意思的是，如今令人担忧的五大湖湖水水位下降竟然是缘于“地表回弹”——过去被厚厚冰盖重重压低下沉的地表，当冰盖消失后正在回弹，海拔上升，流入湖中的河水减少甚至将会停止……</p>
+
+<p>其实，在地球自然环境变迁的背后，始终有一个无可匹敌的巨大推动力。它就是太阳。确切的说，不是太阳本身，而是地球接收的太阳辐射的变化。太阳活动、地球轨道参数、黄赤交角、大陆漂移、火山喷发的火山灰进入大气层形成的阳伞效应等等，这些都会影响地球上接收到的太阳辐射变化。<strong>辐射平衡</strong>是地球气候系统形成的重要基础，辐射平衡的改变也就改变了气候，冷暖、干湿。终极一切奥秘，肯定都在天文宇宙之中。人类太渺小了，太短暂了，太微不足道了……</p>
 
   </div>
 
   <div id=links>
     
-      <a class="basic-alignment left" href="https://wormone.github.io/notebook/post/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%8E%E7%8E%AF%E5%A2%83%E6%B0%94%E8%B1%A1%EF%BC%9A%E7%A9%BA%E6%B0%94%E8%B4%A8%E9%87%8F%E9%A2%84%E6%8A%A5%EF%BC%9A3%E5%BB%BA%E6%A8%A1%E3%80%81%E8%AE%AD%E7%BB%83%E5%92%8C%E8%AF%84%E4%BC%B0/">&laquo; 机器学习与环境气象：空气质量预报：3建模、训练和评估</a>
+      <a class="basic-alignment left" href="https://wormone.github.io/notebook/post/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%8E%E7%8E%AF%E5%A2%83%E6%B0%94%E8%B1%A1%EF%BC%9A%E7%A9%BA%E6%B0%94%E8%B4%A8%E9%87%8F%E9%A2%84%E6%8A%A5%EF%BC%9A4%E4%B8%9A%E5%8A%A1%E7%94%9F%E4%BA%A7/">&laquo; 机器学习与环境气象：空气质量预报：4业务生产</a>
     
-    
-      <a class="basic-alignment left" href="https://wormone.github.io/notebook/post/%E7%9C%8B%E7%BA%AA%E5%BD%95%E7%89%87%E3%80%8A%E5%9C%B0%E7%90%83%E8%B5%B7%E6%BA%90HowTheEarthWasMade%E3%80%8B/">看纪录片《地球起源HowTheWorldWasMade》 &raquo;</a>
     
   </div>
 </section>

@@ -6,8 +6,26 @@
     <description>Recent content on A notebook on data analysis in python</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Fri, 21 Jul 2017 19:21:15 +0800</lastBuildDate>
+    <lastBuildDate>Wed, 13 Sep 2017 19:21:15 +0800</lastBuildDate>
     <atom:link href="https://wormone.github.io/notebook/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>看纪录片《地球起源HowTheWorldWasMade》</title>
+      <link>https://wormone.github.io/notebook/post/%E7%9C%8B%E7%BA%AA%E5%BD%95%E7%89%87%E3%80%8A%E5%9C%B0%E7%90%83%E8%B5%B7%E6%BA%90HowTheEarthWasMade%E3%80%8B/</link>
+      <pubDate>Wed, 13 Sep 2017 19:21:15 +0800</pubDate>
+      
+      <guid>https://wormone.github.io/notebook/post/%E7%9C%8B%E7%BA%AA%E5%BD%95%E7%89%87%E3%80%8A%E5%9C%B0%E7%90%83%E8%B5%B7%E6%BA%90HowTheEarthWasMade%E3%80%8B/</guid>
+      <description>&lt;p&gt;这一集讲的是北美五大湖的形成。&lt;/p&gt;
+
+&lt;p&gt;在我们普通人的眼里，我们游玩的山水风景都是不变的景观。其实任何一个地方的自然环境都是在不断演变着的，只是因为当我们用自己的的时间尺度来衡量时，这些变化显得&lt;strong&gt;太小&lt;/strong&gt;或者&lt;strong&gt;太慢&lt;/strong&gt;以至于被忽略了。&lt;/p&gt;
+
+&lt;p&gt;然而，在地质学家眼中，一切都不同了。最早研究北美五大湖的地质学家测量发现，大瀑布每年以0.3米的速度侵蚀岩石，并由此推算出了五大湖的形成时间（再后来的研究发现侵蚀速度是每年0.9米）。在地质学家的眼里，如今的一切都是&lt;strong&gt;动态演变过程&lt;/strong&gt;中的一个微小&lt;strong&gt;片段&lt;/strong&gt;，地貌特征、地层结构、古生物化石、岩石类型、沉积物等等都无时无刻不伴随着这种演变，因而蕴藏着这种演变的秘密——它的&lt;strong&gt;过去和未来&lt;/strong&gt;！&lt;/p&gt;
+
+&lt;p&gt;湖盆下的巨大盐矿、湖盆的白云岩、地表冰丘地貌、海洋生物化石、岩石上的冰川擦痕、古河系……当地质学家把越来越多的证据汇集起来，就能够推测出北美五大湖的形成过程，揭示出那些巨大的变迁。更有意思的是，如今令人担忧的五大湖湖水水位下降竟然是缘于“地表回弹”——过去被厚厚冰盖重重压低下沉的地表，当冰盖消失后正在回弹，海拔上升，流入湖中的河水减少甚至将会停止……&lt;/p&gt;
+
+&lt;p&gt;其实，在地球自然环境变迁的背后，始终有一个无可匹敌的巨大推动力。它就是太阳。确切的说，不是太阳本身，而是地球接收的太阳辐射的变化。太阳活动、地球轨道参数、黄赤交角、大陆漂移、火山喷发的火山灰进入大气层形成的阳伞效应等等，这些都会影响地球上接收到的太阳辐射变化。&lt;strong&gt;辐射平衡&lt;/strong&gt;是地球气候系统形成的重要基础，辐射平衡的改变也就改变了气候，冷暖、干湿。终极一切奥秘，肯定都在天文宇宙之中。人类太渺小了，太短暂了，太微不足道了……&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>机器学习与环境气象：空气质量预报：4业务生产</title>
