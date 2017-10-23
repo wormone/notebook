@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
+    <base href="https://wormone.github.io/notebook/">
+    
+
+    <link rel="dns-prefetch" href="//fonts.googleapis.com/">
+
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Old+Standard+TT:400' rel='stylesheet' type='text/css'>
+
+    <title>
+      
+      
+         K-means聚类分析应用示例 
+      
+    </title>
+    <link rel="canonical" href="https://wormone.github.io/notebook/post/K-means%E8%81%9A%E7%B1%BB%E5%88%86%E6%9E%90%E5%BA%94%E7%94%A8%E7%A4%BA%E4%BE%8B/">
+
+    <style>
+  * {
+    border:0;
+    font:inherit;
+    font-size:100%;
+    vertical-align:baseline;
+    margin:0;
+    padding:0;
+    color: black;
+  }
+
+  body {
+    font-family:'Open Sans', 'Myriad Pro', Myriad, sans-serif;
+    font-size:17px;
+    line-height:160%;
+    color:#1d1313;
+    max-width:700px;
+    margin:auto;
+  }
+
+  p {
+    margin: 5px 0 10px 0;
+  }
+
+  a img {
+    border:none;
+  }
+
+  img {
+    margin: 10px auto 10px auto;
+    max-width: 100%;
+    display: block;
+  }
+
+  pre, code {
+    font: 12px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    background-color: #f7f7f7;
+  }
+
+  code {
+    font-size: 12px;
+    padding: 4px;
+  }
+
+  pre {
+    margin-top: 0;
+    margin-bottom: 16px;
+    word-wrap: normal;
+    padding: 16px;
+    overflow: auto;
+    font-size: 85%;
+    line-height: 1.45;
+  }
+
+  pre>code {
+    padding: 0;
+    margin: 0;
+    font-size: 100%;
+    word-break: normal;
+    white-space: pre;
+    background: transparent;
+    border: 0;
+  }
+
+  pre code {
+    display: inline;
+    max-width: auto;
+    padding: 0;
+    margin: 0;
+    overflow: visible;
+    line-height: inherit;
+    word-wrap: normal;
+    background-color: transparent;
+    border: 0;
+  }
+
+  pre code::before,
+  pre code::after {
+    content: normal;
+  }
+
+  em,q,em,dfn {
+    font-style:italic;
+  }
+
+  .sans,html .gist .gist-file .gist-meta {
+    font-family:"Open Sans","Myriad Pro",Myriad,sans-serif;
+  }
+
+  .mono,pre,code,tt,p code,li code {
+    font-family:Menlo,Monaco,"Andale Mono","lucida console","Courier New",monospace;
+  }
+
+  .heading,.serif,h1,h2,h3 {
+    font-family:"Old Standard TT",serif;
+  }
+
+  strong {
+    font-weight:600;
+  }
+
+  q:before {
+    content:"\201C";
+  }
+
+  q:after {
+    content:"\201D";
+  }
+
+  del,s {
+    text-decoration:line-through;
+  }
+
+  blockquote {
+    font-family:"Old Standard TT",serif;
+    text-align:center;
+    padding:50px;
+  }
+
+  blockquote p {
+    display:inline-block;
+    font-style:italic;
+  }
+
+  blockquote:before,blockquote:after {
+    font-family:"Old Standard TT",serif;
+    content:'\201C';
+    font-size:35px;
+    color:#403c3b;
+  }
+
+  blockquote:after {
+    content:'\201D';
+  }
+
+  hr {
+    width:40%;
+    height: 1px;
+    background:#403c3b;
+    margin: 25px auto;
+  }
+
+  h1 {
+    font-size:35px;
+  }
+
+  h2 {
+    font-size:28px;
+  }
+
+  h3 {
+    font-size:22px;
+    margin-top:18px;
+  }
+
+  h1 a,h2 a,h3 a {
+    text-decoration:none;
+  }
+
+  h1,h2 {
+    margin-top:28px;
+  }
+
+  #sub-header, time {
+    color:#403c3b;
+    font-size:13px;
+  }
+
+  #sub-header {
+    margin: 0 4px;
+  }
+
+  #nav h1 a {
+    font-size:35px;
+    color:#1d1313;
+    line-height:120%;
+  }
+
+  .posts_listing a,#nav a {
+    text-decoration: none;
+  }
+
+  li {
+    margin-left: 20px;
+  }
+
+  ul li {
+    margin-left: 5px;
+  }
+
+  ul li {
+    list-style-type: none;
+  }
+  ul li:before {
+    content:"\00BB \0020";
+  }
+
+  #nav ul li:before, .posts_listing li:before {
+    content:'';
+    margin-right:0;
+  }
+
+  #content {
+    text-align:left;
+    width:100%;
+    font-size:15px;
+    padding:60px 0 80px;
+  }
+
+  #content h1,#content h2 {
+    margin-bottom:5px;
+  }
+
+  #content h2 {
+    font-size:25px;
+  }
+
+  #content .entry-content {
+    margin-top:15px;
+  }
+
+  #content time {
+    margin-left:3px;
+  }
+
+  #content h1 {
+    font-size:30px;
+  }
+
+  .highlight {
+    margin: 10px 0;
+  }
+
+  .posts_listing {
+    margin:0 0 50px;
+  }
+
+  .posts_listing li {
+    margin:0 0 25px 15px;
+  }
+
+  .posts_listing li a:hover,#nav a:hover {
+    text-decoration: underline;
+  }
+
+  #nav {
+    text-align:center;
+    position:static;
+    margin-top:60px;
+  }
+
+  #nav ul {
+    display: table;
+    margin: 8px auto 0 auto;
+  }
+
+  #nav li {
+    list-style-type:none;
+    display:table-cell;
+    font-size:15px;
+    padding: 0 20px;
+  }
+
+  #links {
+    margin: 50px 0 0 0;
+  }
+
+  #links :nth-child(2) {
+    float:right;
+  }
+
+  #not-found {
+    text-align: center;
+  }
+
+  #not-found a {
+    font-family:"Old Standard TT",serif;
+    font-size: 200px;
+    text-decoration: none;
+    display: inline-block;
+    padding-top: 225px;
+  }
+
+  @media (max-width: 750px) {
+    body {
+      padding-left:20px;
+      padding-right:20px;
+    }
+
+    #nav h1 a {
+      font-size:28px;
+    }
+
+    #nav li {
+      font-size:13px;
+      padding: 0 15px;
+    }
+
+    #content {
+      margin-top:0;
+      padding-top:50px;
+      font-size:14px;
+    }
+
+    #content h1 {
+      font-size:25px;
+    }
+
+    #content h2 {
+      font-size:22px;
+    }
+
+    .posts_listing li div {
+      font-size:12px;
+    }
+  }
+
+  @media (max-width: 400px) {
+    body {
+      padding-left:20px;
+      padding-right:20px;
+    }
+
+    #nav h1 a {
+      font-size:22px;
+    }
+
+    #nav li {
+      font-size:12px;
+      padding: 0 10px;
+    }
+
+    #content {
+      margin-top:0;
+      padding-top:20px;
+      font-size:12px;
+    }
+
+    #content h1 {
+      font-size:20px;
+    }
+
+    #content h2 {
+      font-size:18px;
+    }
+
+    .posts_listing li div{
+      font-size:12px;
+    }
+  }
+</style>
+
+
+    <link rel="shortcut icon" href="/favicon.ico">
+
+    
+  </head>
+
+  <body>
+    <section id=nav>
+      <h1><a href="/"></a></h1>
+      <ul>
+        
+      </ul>
+    </section>
+
+
+<section id=content>
+  <h1> K-means聚类分析应用示例 </h1>
+
+  <div id=sub-header>
+    June 2017 · 3 minute read
+  </div>
+
+  <div class="entry-content">
+    <pre><code>#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+'''KMeans 聚类分析样例程序
+
+关于样本和样本（点和点）之间距离的算法：
+http://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise.pairwise_distances.html#sklearn.metrics.pairwise.pairwise_distances
+
+用 silhouette 评估 KMeans 聚类分析，画图，确定分类数目：
+http://scikit-learn.org/stable/auto_examples/cluster/plot_kmeans_silhouette_analysis.html#sphx-glr-auto-examples-cluster-plot-kmeans-silhouette-analysis-py
+
+在 KMeans 之前先用主成分分析（PCA）降维：
+http://scikit-learn.org/stable/auto_examples/cluster/plot_kmeans_digits.html#sphx-glr-auto-examples-cluster-plot-kmeans-digits-py
+
+'''
+
+
+import numpy as np
+import matplotlib.cm as cm
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+from sklearn.metrics import pairwise_distances, silhouette_score, silhouette_samples
+
+
+# 载入样例数据
+from sklearn import datasets
+dataset = datasets.load_iris()
+X = dataset.data
+# y = dataset.target  # 这是实际分类标签。由于 KMeans 是非监督（自动）分类算法，因此不用学习这个真实分类。
+n_samples, n_features = X.shape
+print('n_samples = {}, n_features = {}'.format(n_samples, n_features))
+
+
+&quot;&quot;&quot;
+    需要特别注意的是：这里的样例数据比较简单，每个样本的不同特征的量纲和数量级相同，但是我们要面对的问题可能不是这样：
+    一天（看作一个样本、一个点）的特征有风速风向、最高最低气温、湿度、气压，及其24小时变化值等，
+    不同要素的量纲和数量级不同，因此最好在进行 KMeans 聚类分析之前，先对每个要素进行标注化或归一化处理。
+    归一化即 (x-min(x))/(max(x)-min(x))，把 x 转变为 [0, 1] 区间内。
+    标准化即 (x-mean(x))/std(x)，结果有正有负，标准差变为 1。
+&quot;&quot;&quot;
+
+
+&quot;&quot;&quot; 
+    以下两个 KMeans 样例程序，都是把示例数据 X 分成 3 类 
+&quot;&quot;&quot;
+
+
+def test_KMeans_default(X=X, n_clusters=3):
+    # 直接采用 KMeans 进行聚类分析，默认距离计算方法是 euclidean，即欧几里得距离
+    kmeans_model = KMeans(n_clusters=n_clusters, random_state=1).fit(X)
+    cluster_labels = kmeans_model.labels_
+    silhouette_avg = silhouette_score(X, cluster_labels, metric='euclidean')
+    sample_silhouette_values = silhouette_samples(X, cluster_labels, metric='euclidean')
+    # print sample_silhouette_values
+    print('Average silhouette value: {}'.format(silhouette_avg))
+
+
+def test_KMeans_using_custom_distance(X=X, n_clusters=3, metric='correlation'):
+    # 先按照某种距离计算方法计算距离矩阵 D，如采用 correlation 算法，即 1 减去皮尔逊相关系数，这种算法在我们需要解决的问题中更常用
+    D = pairwise_distances(X, metric=metric)
+    clusterer = KMeans(n_clusters=n_clusters, random_state=1, precompute_distances=True)
+    cluster_labels = clusterer.fit_predict(D)
+    silhouette_avg = silhouette_score(D, cluster_labels, metric='precomputed')
+    sample_silhouette_values = silhouette_samples(D, cluster_labels, metric='precomputed')
+    # print sample_silhouette_values
+    print('Average silhouette value: {}'.format(silhouette_avg))
+
+    &quot;&quot;&quot;
+        以下绘图程序复制粘贴自官网示例，样例数据 X 只有 4 个特征，因此右侧的图能看出分类。
+        对于高维度的气象数据而言，例如，一天（看作一个样本、一个点）的特征有风速风向、最高最低气温、湿度、气压，及其24小时变化值等，
+        因此，无法在简单的二维平面显示他们的分类：画出来的点，虽然属于不同类别，但是都会叠在一起，分不出来。
+    &quot;&quot;&quot;
+    # Create a subplot with 1 row and 2 columns
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+    fig.set_size_inches(18, 7)
+
+    # The 1st subplot is the silhouette plot
+    # The silhouette coefficient can range from -1, 1 but in this example all
+    # lie within [-0.1, 1]
+    ax1.set_xlim([-0.1, 1])
+    # The (n_clusters+1)*10 is for inserting blank space between silhouette
+    # plots of individual clusters, to demarcate them clearly.
+    ax1.set_ylim([0, len(X) + (n_clusters + 1) * 10])
+
+    y_lower = 10
+    for i in range(n_clusters):
+        # Aggregate the silhouette scores for samples belonging to
+        # cluster i, and sort them
+        ith_cluster_silhouette_values = \
+            sample_silhouette_values[cluster_labels == i]
+
+        ith_cluster_silhouette_values.sort()
+
+        size_cluster_i = ith_cluster_silhouette_values.shape[0]
+        y_upper = y_lower + size_cluster_i
+
+        color = cm.spectral(float(i) / n_clusters)
+        ax1.fill_betweenx(np.arange(y_lower, y_upper),
+                          0, ith_cluster_silhouette_values,
+                          facecolor=color, edgecolor=color, alpha=0.7)
+
+        # Label the silhouette plots with their cluster numbers at the middle
+        ax1.text(-0.05, y_lower + 0.5 * size_cluster_i, str(i))
+
+        # Compute the new y_lower for next plot
+        y_lower = y_upper + 10  # 10 for the 0 samples
+
+    ax1.set_title(&quot;The silhouette plot for the various clusters.&quot;)
+    ax1.set_xlabel(&quot;The silhouette coefficient values&quot;)
+    ax1.set_ylabel(&quot;Cluster label&quot;)
+
+    # The vertical line for average silhouette score of all the values
+    ax1.axvline(x=silhouette_avg, color=&quot;red&quot;, linestyle=&quot;--&quot;)
+
+    ax1.set_yticks([])  # Clear the yaxis labels / ticks
+    ax1.set_xticks([-0.1, 0, 0.2, 0.4, 0.6, 0.8, 1])
+
+    # # 2nd Plot showing the actual clusters formed
+    # colors = cm.spectral(cluster_labels.astype(float) / n_clusters)
+    # ax2.scatter(X[:, 1], X[:, 2], marker='.', s=30, lw=0, alpha=0.7,
+    #             c=colors)
+
+    # # Labeling the clusters
+    # centers = clusterer.cluster_centers_
+    # # Draw white circles at cluster centers
+    # ax2.scatter(centers[:, 0], centers[:, 1],
+    #             marker='o', c=&quot;white&quot;, alpha=1, s=200)
+
+    # for i, c in enumerate(centers):
+    #     ax2.scatter(c[0], c[1], marker='$%d$' % i, alpha=1, s=50)
+
+    # ax2.set_title(&quot;The visualization of the clustered data.&quot;)
+    # ax2.set_xlabel(&quot;Feature space for the 1st feature&quot;)
+    # ax2.set_ylabel(&quot;Feature space for the 2nd feature&quot;)
+
+    # plt.suptitle((&quot;Silhouette analysis for KMeans clustering on sample data &quot;
+    #               &quot;with n_clusters = %d&quot; % n_clusters),
+    #              fontsize=14, fontweight='bold')
+
+    plt.show()
+
+
+if __name__ == '__main__':
+    # test_KMeans_using_custom_distance(metric='euclidean')
+    test_KMeans_using_custom_distance()
+
+</code></pre>
+
+  </div>
+
+  <div id=links>
+    
+      <a class="basic-alignment left" href="https://wormone.github.io/notebook/post/%E6%B0%94%E8%B1%A1%E6%95%B0%E6%8D%AE%E6%9F%A5%E8%AF%A2%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1%E7%9A%84%E7%AE%80%E8%A6%81%E6%96%B9%E6%A1%88/">&laquo; 气象数据查询接口设计的简要方案</a>
+    
+    
+      <a class="basic-alignment left" href="https://wormone.github.io/notebook/post/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%8E%E7%8E%AF%E5%A2%83%E6%B0%94%E8%B1%A1%EF%BC%9A%E7%A9%BA%E6%B0%94%E8%B4%A8%E9%87%8F%E9%A2%84%E6%8A%A5%EF%BC%9A0%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/">机器学习与环境气象：空气质量预报：0方案设计 &raquo;</a>
+    
+  </div>
+</section>
+
+  </div>
+  
+</body>
+</html>
+
+
+

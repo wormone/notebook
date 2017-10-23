@@ -119,6 +119,162 @@
     </item>
     
     <item>
+      <title>K-means聚类分析应用示例</title>
+      <link>https://wormone.github.io/notebook/post/K-means%E8%81%9A%E7%B1%BB%E5%88%86%E6%9E%90%E5%BA%94%E7%94%A8%E7%A4%BA%E4%BE%8B/</link>
+      <pubDate>Tue, 13 Jun 2017 19:21:15 +0800</pubDate>
+      
+      <guid>https://wormone.github.io/notebook/post/K-means%E8%81%9A%E7%B1%BB%E5%88%86%E6%9E%90%E5%BA%94%E7%94%A8%E7%A4%BA%E4%BE%8B/</guid>
+      <description>&lt;pre&gt;&lt;code&gt;#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+&#39;&#39;&#39;KMeans 聚类分析样例程序
+
+关于样本和样本（点和点）之间距离的算法：
+http://scikit-learn.org/stable/modules/generated/sklearn.metrics.pairwise.pairwise_distances.html#sklearn.metrics.pairwise.pairwise_distances
+
+用 silhouette 评估 KMeans 聚类分析，画图，确定分类数目：
+http://scikit-learn.org/stable/auto_examples/cluster/plot_kmeans_silhouette_analysis.html#sphx-glr-auto-examples-cluster-plot-kmeans-silhouette-analysis-py
+
+在 KMeans 之前先用主成分分析（PCA）降维：
+http://scikit-learn.org/stable/auto_examples/cluster/plot_kmeans_digits.html#sphx-glr-auto-examples-cluster-plot-kmeans-digits-py
+
+&#39;&#39;&#39;
+
+
+import numpy as np
+import matplotlib.cm as cm
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+from sklearn.metrics import pairwise_distances, silhouette_score, silhouette_samples
+
+
+# 载入样例数据
+from sklearn import datasets
+dataset = datasets.load_iris()
+X = dataset.data
+# y = dataset.target  # 这是实际分类标签。由于 KMeans 是非监督（自动）分类算法，因此不用学习这个真实分类。
+n_samples, n_features = X.shape
+print(&#39;n_samples = {}, n_features = {}&#39;.format(n_samples, n_features))
+
+
+&amp;quot;&amp;quot;&amp;quot;
+    需要特别注意的是：这里的样例数据比较简单，每个样本的不同特征的量纲和数量级相同，但是我们要面对的问题可能不是这样：
+    一天（看作一个样本、一个点）的特征有风速风向、最高最低气温、湿度、气压，及其24小时变化值等，
+    不同要素的量纲和数量级不同，因此最好在进行 KMeans 聚类分析之前，先对每个要素进行标注化或归一化处理。
+    归一化即 (x-min(x))/(max(x)-min(x))，把 x 转变为 [0, 1] 区间内。
+    标准化即 (x-mean(x))/std(x)，结果有正有负，标准差变为 1。
+&amp;quot;&amp;quot;&amp;quot;
+
+
+&amp;quot;&amp;quot;&amp;quot; 
+    以下两个 KMeans 样例程序，都是把示例数据 X 分成 3 类 
+&amp;quot;&amp;quot;&amp;quot;
+
+
+def test_KMeans_default(X=X, n_clusters=3):
+    # 直接采用 KMeans 进行聚类分析，默认距离计算方法是 euclidean，即欧几里得距离
+    kmeans_model = KMeans(n_clusters=n_clusters, random_state=1).fit(X)
+    cluster_labels = kmeans_model.labels_
+    silhouette_avg = silhouette_score(X, cluster_labels, metric=&#39;euclidean&#39;)
+    sample_silhouette_values = silhouette_samples(X, cluster_labels, metric=&#39;euclidean&#39;)
+    # print sample_silhouette_values
+    print(&#39;Average silhouette value: {}&#39;.format(silhouette_avg))
+
+
+def test_KMeans_using_custom_distance(X=X, n_clusters=3, metric=&#39;correlation&#39;):
+    # 先按照某种距离计算方法计算距离矩阵 D，如采用 correlation 算法，即 1 减去皮尔逊相关系数，这种算法在我们需要解决的问题中更常用
+    D = pairwise_distances(X, metric=metric)
+    clusterer = KMeans(n_clusters=n_clusters, random_state=1, precompute_distances=True)
+    cluster_labels = clusterer.fit_predict(D)
+    silhouette_avg = silhouette_score(D, cluster_labels, metric=&#39;precomputed&#39;)
+    sample_silhouette_values = silhouette_samples(D, cluster_labels, metric=&#39;precomputed&#39;)
+    # print sample_silhouette_values
+    print(&#39;Average silhouette value: {}&#39;.format(silhouette_avg))
+
+    &amp;quot;&amp;quot;&amp;quot;
+        以下绘图程序复制粘贴自官网示例，样例数据 X 只有 4 个特征，因此右侧的图能看出分类。
+        对于高维度的气象数据而言，例如，一天（看作一个样本、一个点）的特征有风速风向、最高最低气温、湿度、气压，及其24小时变化值等，
+        因此，无法在简单的二维平面显示他们的分类：画出来的点，虽然属于不同类别，但是都会叠在一起，分不出来。
+    &amp;quot;&amp;quot;&amp;quot;
+    # Create a subplot with 1 row and 2 columns
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+    fig.set_size_inches(18, 7)
+
+    # The 1st subplot is the silhouette plot
+    # The silhouette coefficient can range from -1, 1 but in this example all
+    # lie within [-0.1, 1]
+    ax1.set_xlim([-0.1, 1])
+    # The (n_clusters+1)*10 is for inserting blank space between silhouette
+    # plots of individual clusters, to demarcate them clearly.
+    ax1.set_ylim([0, len(X) + (n_clusters + 1) * 10])
+
+    y_lower = 10
+    for i in range(n_clusters):
+        # Aggregate the silhouette scores for samples belonging to
+        # cluster i, and sort them
+        ith_cluster_silhouette_values = \
+            sample_silhouette_values[cluster_labels == i]
+
+        ith_cluster_silhouette_values.sort()
+
+        size_cluster_i = ith_cluster_silhouette_values.shape[0]
+        y_upper = y_lower + size_cluster_i
+
+        color = cm.spectral(float(i) / n_clusters)
+        ax1.fill_betweenx(np.arange(y_lower, y_upper),
+                          0, ith_cluster_silhouette_values,
+                          facecolor=color, edgecolor=color, alpha=0.7)
+
+        # Label the silhouette plots with their cluster numbers at the middle
+        ax1.text(-0.05, y_lower + 0.5 * size_cluster_i, str(i))
+
+        # Compute the new y_lower for next plot
+        y_lower = y_upper + 10  # 10 for the 0 samples
+
+    ax1.set_title(&amp;quot;The silhouette plot for the various clusters.&amp;quot;)
+    ax1.set_xlabel(&amp;quot;The silhouette coefficient values&amp;quot;)
+    ax1.set_ylabel(&amp;quot;Cluster label&amp;quot;)
+
+    # The vertical line for average silhouette score of all the values
+    ax1.axvline(x=silhouette_avg, color=&amp;quot;red&amp;quot;, linestyle=&amp;quot;--&amp;quot;)
+
+    ax1.set_yticks([])  # Clear the yaxis labels / ticks
+    ax1.set_xticks([-0.1, 0, 0.2, 0.4, 0.6, 0.8, 1])
+
+    # # 2nd Plot showing the actual clusters formed
+    # colors = cm.spectral(cluster_labels.astype(float) / n_clusters)
+    # ax2.scatter(X[:, 1], X[:, 2], marker=&#39;.&#39;, s=30, lw=0, alpha=0.7,
+    #             c=colors)
+
+    # # Labeling the clusters
+    # centers = clusterer.cluster_centers_
+    # # Draw white circles at cluster centers
+    # ax2.scatter(centers[:, 0], centers[:, 1],
+    #             marker=&#39;o&#39;, c=&amp;quot;white&amp;quot;, alpha=1, s=200)
+
+    # for i, c in enumerate(centers):
+    #     ax2.scatter(c[0], c[1], marker=&#39;$%d$&#39; % i, alpha=1, s=50)
+
+    # ax2.set_title(&amp;quot;The visualization of the clustered data.&amp;quot;)
+    # ax2.set_xlabel(&amp;quot;Feature space for the 1st feature&amp;quot;)
+    # ax2.set_ylabel(&amp;quot;Feature space for the 2nd feature&amp;quot;)
+
+    # plt.suptitle((&amp;quot;Silhouette analysis for KMeans clustering on sample data &amp;quot;
+    #               &amp;quot;with n_clusters = %d&amp;quot; % n_clusters),
+    #              fontsize=14, fontweight=&#39;bold&#39;)
+
+    plt.show()
+
+
+if __name__ == &#39;__main__&#39;:
+    # test_KMeans_using_custom_distance(metric=&#39;euclidean&#39;)
+    test_KMeans_using_custom_distance()
+
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
       <title>气象数据查询接口设计的简要方案</title>
       <link>https://wormone.github.io/notebook/post/%E6%B0%94%E8%B1%A1%E6%95%B0%E6%8D%AE%E6%9F%A5%E8%AF%A2%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1%E7%9A%84%E7%AE%80%E8%A6%81%E6%96%B9%E6%A1%88/</link>
       <pubDate>Thu, 13 Apr 2017 19:21:15 +0800</pubDate>
