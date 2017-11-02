@@ -6,8 +6,85 @@
     <description>Recent content on A notebook on data analysis in python</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Wed, 27 Sep 2017 19:21:15 +0800</lastBuildDate>
+    <lastBuildDate>Tue, 31 Oct 2017 19:21:15 +0800</lastBuildDate>
     <atom:link href="https://wormone.github.io/notebook/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>数据搜集和整理：requests和pandas的简单应用示例</title>
+      <link>https://wormone.github.io/notebook/post/%E6%95%B0%E6%8D%AE%E6%90%9C%E9%9B%86%E5%92%8C%E6%95%B4%E7%90%86%EF%BC%9Arequests%E5%92%8Cpandas%E7%9A%84%E7%AE%80%E5%8D%95%E5%BA%94%E7%94%A8%E7%A4%BA%E4%BE%8B/</link>
+      <pubDate>Tue, 31 Oct 2017 19:21:15 +0800</pubDate>
+      
+      <guid>https://wormone.github.io/notebook/post/%E6%95%B0%E6%8D%AE%E6%90%9C%E9%9B%86%E5%92%8C%E6%95%B4%E7%90%86%EF%BC%9Arequests%E5%92%8Cpandas%E7%9A%84%E7%AE%80%E5%8D%95%E5%BA%94%E7%94%A8%E7%A4%BA%E4%BE%8B/</guid>
+      <description>&lt;p&gt;都说现在是大数据时代，不仅仅气象被数据记录下来，这个世界的方方面面都被或多或少的数据记录着。&lt;/p&gt;
+
+&lt;p&gt;最大的问题就是数据资源太&lt;strong&gt;不平衡&lt;/strong&gt;了，有些地方数据大量冗余，价值有待更多的发掘，而有些地方却苦于数据资源太少，或者难以获得，很多有价值的工作无法开展……&lt;/p&gt;
+
+&lt;p&gt;数据的搜集整理是一项很基础的工作，今天我们用pytnon的requests和pandas两个软件包试验一下获取淘宝每天的关注上升榜单Top100，地址是&lt;a href=&#34;https://top.taobao.com/index.php&#34;&gt;top.taobao.com&lt;/a&gt;。&lt;/p&gt;
+
+&lt;p&gt;先通过浏览器分析数据加载的情况。开始一段时间从F12里没有找到数据来源，感觉有点奇怪，难道非要用selenium了吗？后来从分页的链接地址找到了数据接口，尝试curl之后发现还好，数据比较简单（但是浏览器打开的分页地址总会马上跳转到首页地址，网页源码也会变成首页源码，看不到新加载的数据）。&lt;/p&gt;
+
+&lt;p&gt;所以我们直接采用requests就可以抓取了，然后再用正则匹配一下我们需要的数据，从字符串转换为json，再转换为pandas的DataFrame，方便转换为csv文件存储或者写入数据库。代码如下，python总是很简单：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import re
+import requests
+import pandas as pd
+import simplejson as json
+from datetime import datetime, date, timedelta
+
+&amp;quot;&amp;quot;&amp;quot;taobao daily top search 100
+
+https://top.taobao.com/index.php?rank=focus&amp;amp;type=up
+https://top.taobao.com/index.php?rank=focus&amp;amp;type=up&amp;amp;s=20
+https://top.taobao.com/index.php?rank=focus&amp;amp;type=up&amp;amp;s=40
+https://top.taobao.com/index.php?rank=focus&amp;amp;type=up&amp;amp;s=60
+https://top.taobao.com/index.php?rank=focus&amp;amp;type=up&amp;amp;s=80
+&amp;quot;&amp;quot;&amp;quot;
+
+
+upOrDown = {
+    1: 1,   # 1 means up
+    2: 0,   # 2 means no change
+    0: -1,  # 0 means down
+}
+
+
+def taobao_top100():
+    url = &#39;https://top.taobao.com/index.php&#39;
+    params = dict(rank=&#39;focus&#39;, type=&#39;up&#39;)
+    data = []
+    for i in range(7):  # 5
+        params.update(dict(s=i*20))
+        r = requests.get(url, params=params)
+        if r.status_code == requests.codes.ok:
+            text = r.text
+            text = re.search(r&#39;(?&amp;lt;=&amp;quot;list&amp;quot;:)\[.*?\]&#39;, text).group(0)
+            text = json.loads(text)
+            # print text
+            rank = [_[&#39;col1&#39;][&#39;text&#39;] for _ in text]
+            name = [_[&#39;col2&#39;][&#39;text&#39;] for _ in text]
+            search_num = [_[&#39;col4&#39;][&#39;num&#39;] for _ in text]
+            rank_change = [_[&#39;col5&#39;][&#39;text&#39;] * upOrDown.get(_[&#39;col5&#39;][&#39;upOrDown&#39;]) for _ in text]
+            rank_change_ratio = [(&#39;-&#39; if upOrDown.get(_[&#39;col6&#39;][&#39;upOrDown&#39;])&amp;lt;0 else &#39;&#39;) + _[&#39;col6&#39;][&#39;text&#39;] for _ in text]
+            text = pd.DataFrame(dict(
+                name=name, search_num=search_num, 
+                rank_change=rank_change, rank_change_ratio=rank_change_ratio), index=rank)
+            data.append(text)
+        else:
+            print(&#39;Error with code {}&#39;.format(r.status_code))
+    data = pd.concat(data)
+    data.to_csv(&#39;{}.csv&#39;.format(datetime.now().strftime(&#39;%Y%m%d%H%M%S&#39;)), encoding=&#39;utf8&#39;)
+    return data
+
+
+if __name__ == &#39;__main__&#39;:
+    taobao_top100()
+
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
     
     <item>
       <title>基于DBSCAN的探索性气候分析</title>
