@@ -15,7 +15,7 @@
       <pubDate>Fri, 29 Dec 2017 09:21:15 +0800</pubDate>
       
       <guid>https://wormone.github.io/notebook/post/GeoTiff%E5%9B%BE%E5%83%8F%E6%8B%BC%E6%8E%A5/</guid>
-      <description>&lt;p&gt;&lt;strong&gt;GeoTiff&lt;/strong&gt; 作为 TIFF 的一种扩展, 在 TIFF 的基础上定义了一些地理标签 , 来对各种坐标系统、椭球基准、投影信息等进行定义和存储, 使图像数据和地理数据存储在同一图像文件中。&lt;/p&gt;
+      <description>&lt;p&gt;&lt;strong&gt;GeoTiff&lt;/strong&gt; 作为 TIFF 的一种扩展，在 TIFF 的基础上定义了一些地理标签， 来对各种坐标系统、椭球基准、投影信息等进行定义和存储，使图像数据和地理数据存储在同一图像文件中。&lt;/p&gt;
 
 &lt;p&gt;今天我们要用到的数据是 ASTER 数字高程地形数据，可以在 &lt;a href=&#34;https://earthexplorer.usgs.gov/&#34;&gt;USGS Earth Explorer site&lt;/a&gt; 注册后，自定义区域下载。&lt;/p&gt;
 
@@ -44,16 +44,20 @@
 &lt;p&gt;Python 有调用 GDAL 的软件包，关于 GDAL 的安装和 python GDAL 软件包的安装可以参考其网站&lt;a href=&#34;https://pypi.python.org/pypi/GDAL/&#34;&gt;说明&lt;/a&gt;。
 需要注意的是 Windows 和 linux 下 GDAL 的安装问题。&lt;/p&gt;
 
-&lt;p&gt;GeoTiff 的读取方法 &lt;code&gt;read_geotiff&lt;/code&gt; 附后，默认参数表示读取 band 1 通道的数据，返回数据矩阵、地理变换参数、投影信息。&lt;/p&gt;
+&lt;p&gt;GeoTiff 的读取方法 &lt;code&gt;read_geotiff&lt;/code&gt; 附后，默认参数表示读取 band 1 通道的数据（其实这里的数据只有 1 个 band），返回数据矩阵、地理变换参数、投影信息。&lt;/p&gt;
 
 &lt;p&gt;ASTER GeoTiff 瓦片图的拼接方法 &lt;code&gt;combine_ASTER&lt;/code&gt; 亦附后，其中参数 &lt;code&gt;dirname&lt;/code&gt; 表示 geotiff 文件放置的位置，&lt;code&gt;ll&lt;/code&gt; 和 &lt;code&gt;ur&lt;/code&gt; 分别是左下（lower left）和右上（upper right）角的经纬度（&lt;strong&gt;注意&lt;/strong&gt;，这里指的是对应于 ASTER geotiff 文件的命名，而不是最后拼接出来的范围）。必要的注释附在代码里。&lt;/p&gt;
 
+&lt;p&gt;以下是一个单幅图像（&lt;code&gt;ASTGTM2_N26E116_dem.tif&lt;/code&gt;）：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;ASTGTM2_N26E116_dem.png&#34; alt=&#34;ASTGTM2_N26E116_dem.tif&#34; title=&#34;ASTGTM2_N26E116_dem.tif&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;以下是由 9 幅图像拼接后的图像（&lt;code&gt;ASTGTM2_N26E116_dem.tif&lt;/code&gt; 在左下角）：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;ASTGTM2_dem_merged.png&#34; alt=&#34;ASTGTM2_dem_merged.tif&#34; title=&#34;ASTGTM2_dem_merged.tif&#34; /&gt;&lt;/p&gt;
+
 &lt;pre&gt;&lt;code&gt;#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @Date    : 2017-12-27 17:08:07
-# @Author  : wormone (renyuuu@gmail.com)
-# @Link    : http://github.com/wormone
-# @Version : $Id$
 
 import os
 import gdal
@@ -63,7 +67,16 @@ from osgeo import gdal, gdalconst, osr
 from gdalconst import *
 
 
-def read_geotiff(tif_fn, band=1, isPlot=False):
+def read_geotiff(tif_fn, band=1, isPlot=False, plot_resolution=1):
+    &#39;&#39;&#39;
+    Arguments:
+        tif_fn {str} -- file name to be read
+    
+    Keyword Arguments:
+        band {number} -- band (default: {1})
+        isPlot {bool} -- view or not (default: {False})
+        plot_resolution {number} -- increase this num when image is too large to display (default: {1})
+    &#39;&#39;&#39;
     gdal.UseExceptions()
     ds = gdal.Open(tif_fn)
     band = ds.GetRasterBand(band)
@@ -78,7 +91,7 @@ def read_geotiff(tif_fn, band=1, isPlot=False):
     # print(geoTransform)
     # print(projection)
     if isPlot:
-        plt.imshow(data, cmap=&#39;gist_earth&#39;, extent=[x0, x1, y1, y0])
+        plt.imshow(data[::plot_resolution, ::plot_resolution], cmap=&#39;gist_earth&#39;, extent=[x0, x1, y1, y0])
         cbar = plt.colorbar(orientation=&#39;vertical&#39;, shrink=0.5)
         plt.show()
     return data, geoTransform, projection
@@ -151,10 +164,10 @@ if __name__ == &#39;__main__&#39;:
     print data
 
     dirname = os.path.join(&#39;ASTER_zhejiang&#39;, &#39;dem&#39;)
-    ll, ur = (116, 26), (116, 26)
+    ll, ur = (116, 26), (118, 28)
     combine_ASTER(dirname, ll, ur, out_fn=&#39;merged.tif&#39;)
 
-    datas, geoTransform, projection = read_geotiff(&#39;merged.tif&#39;, isPlot=True)
+    datas, geoTransform, projection = read_geotiff(&#39;merged.tif&#39;, isPlot=True, plot_resolution=6)
     print geoTransform
     print datas
 
