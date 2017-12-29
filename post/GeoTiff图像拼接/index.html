@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
+    <base href="https://wormone.github.io/notebook/">
+    
+
+    <link rel="dns-prefetch" href="//fonts.googleapis.com/">
+
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Old+Standard+TT:400' rel='stylesheet' type='text/css'>
+
+    <title>
+      
+      
+         GeoTiff图像拼接 
+      
+    </title>
+    <link rel="canonical" href="https://wormone.github.io/notebook/post/GeoTiff%E5%9B%BE%E5%83%8F%E6%8B%BC%E6%8E%A5/">
+
+    <style>
+  * {
+    border:0;
+    font:inherit;
+    font-size:100%;
+    vertical-align:baseline;
+    margin:0;
+    padding:0;
+    color: black;
+  }
+
+  body {
+    font-family:'Open Sans', 'Myriad Pro', Myriad, sans-serif;
+    font-size:17px;
+    line-height:160%;
+    color:#1d1313;
+    max-width:700px;
+    margin:auto;
+  }
+
+  p {
+    margin: 5px 0 10px 0;
+  }
+
+  a img {
+    border:none;
+  }
+
+  img {
+    margin: 10px auto 10px auto;
+    max-width: 100%;
+    display: block;
+  }
+
+  pre, code {
+    font: 12px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    background-color: #f7f7f7;
+  }
+
+  code {
+    font-size: 12px;
+    padding: 4px;
+  }
+
+  pre {
+    margin-top: 0;
+    margin-bottom: 16px;
+    word-wrap: normal;
+    padding: 16px;
+    overflow: auto;
+    font-size: 85%;
+    line-height: 1.45;
+  }
+
+  pre>code {
+    padding: 0;
+    margin: 0;
+    font-size: 100%;
+    word-break: normal;
+    white-space: pre;
+    background: transparent;
+    border: 0;
+  }
+
+  pre code {
+    display: inline;
+    max-width: auto;
+    padding: 0;
+    margin: 0;
+    overflow: visible;
+    line-height: inherit;
+    word-wrap: normal;
+    background-color: transparent;
+    border: 0;
+  }
+
+  pre code::before,
+  pre code::after {
+    content: normal;
+  }
+
+  em,q,em,dfn {
+    font-style:italic;
+  }
+
+  .sans,html .gist .gist-file .gist-meta {
+    font-family:"Open Sans","Myriad Pro",Myriad,sans-serif;
+  }
+
+  .mono,pre,code,tt,p code,li code {
+    font-family:Menlo,Monaco,"Andale Mono","lucida console","Courier New",monospace;
+  }
+
+  .heading,.serif,h1,h2,h3 {
+    font-family:"Old Standard TT",serif;
+  }
+
+  strong {
+    font-weight:600;
+  }
+
+  q:before {
+    content:"\201C";
+  }
+
+  q:after {
+    content:"\201D";
+  }
+
+  del,s {
+    text-decoration:line-through;
+  }
+
+  blockquote {
+    font-family:"Old Standard TT",serif;
+    text-align:center;
+    padding:50px;
+  }
+
+  blockquote p {
+    display:inline-block;
+    font-style:italic;
+  }
+
+  blockquote:before,blockquote:after {
+    font-family:"Old Standard TT",serif;
+    content:'\201C';
+    font-size:35px;
+    color:#403c3b;
+  }
+
+  blockquote:after {
+    content:'\201D';
+  }
+
+  hr {
+    width:40%;
+    height: 1px;
+    background:#403c3b;
+    margin: 25px auto;
+  }
+
+  h1 {
+    font-size:35px;
+  }
+
+  h2 {
+    font-size:28px;
+  }
+
+  h3 {
+    font-size:22px;
+    margin-top:18px;
+  }
+
+  h1 a,h2 a,h3 a {
+    text-decoration:none;
+  }
+
+  h1,h2 {
+    margin-top:28px;
+  }
+
+  #sub-header, time {
+    color:#403c3b;
+    font-size:13px;
+  }
+
+  #sub-header {
+    margin: 0 4px;
+  }
+
+  #nav h1 a {
+    font-size:35px;
+    color:#1d1313;
+    line-height:120%;
+  }
+
+  .posts_listing a,#nav a {
+    text-decoration: none;
+  }
+
+  li {
+    margin-left: 20px;
+  }
+
+  ul li {
+    margin-left: 5px;
+  }
+
+  ul li {
+    list-style-type: none;
+  }
+  ul li:before {
+    content:"\00BB \0020";
+  }
+
+  #nav ul li:before, .posts_listing li:before {
+    content:'';
+    margin-right:0;
+  }
+
+  #content {
+    text-align:left;
+    width:100%;
+    font-size:15px;
+    padding:60px 0 80px;
+  }
+
+  #content h1,#content h2 {
+    margin-bottom:5px;
+  }
+
+  #content h2 {
+    font-size:25px;
+  }
+
+  #content .entry-content {
+    margin-top:15px;
+  }
+
+  #content time {
+    margin-left:3px;
+  }
+
+  #content h1 {
+    font-size:30px;
+  }
+
+  .highlight {
+    margin: 10px 0;
+  }
+
+  .posts_listing {
+    margin:0 0 50px;
+  }
+
+  .posts_listing li {
+    margin:0 0 25px 15px;
+  }
+
+  .posts_listing li a:hover,#nav a:hover {
+    text-decoration: underline;
+  }
+
+  #nav {
+    text-align:center;
+    position:static;
+    margin-top:60px;
+  }
+
+  #nav ul {
+    display: table;
+    margin: 8px auto 0 auto;
+  }
+
+  #nav li {
+    list-style-type:none;
+    display:table-cell;
+    font-size:15px;
+    padding: 0 20px;
+  }
+
+  #links {
+    margin: 50px 0 0 0;
+  }
+
+  #links :nth-child(2) {
+    float:right;
+  }
+
+  #not-found {
+    text-align: center;
+  }
+
+  #not-found a {
+    font-family:"Old Standard TT",serif;
+    font-size: 200px;
+    text-decoration: none;
+    display: inline-block;
+    padding-top: 225px;
+  }
+
+  @media (max-width: 750px) {
+    body {
+      padding-left:20px;
+      padding-right:20px;
+    }
+
+    #nav h1 a {
+      font-size:28px;
+    }
+
+    #nav li {
+      font-size:13px;
+      padding: 0 15px;
+    }
+
+    #content {
+      margin-top:0;
+      padding-top:50px;
+      font-size:14px;
+    }
+
+    #content h1 {
+      font-size:25px;
+    }
+
+    #content h2 {
+      font-size:22px;
+    }
+
+    .posts_listing li div {
+      font-size:12px;
+    }
+  }
+
+  @media (max-width: 400px) {
+    body {
+      padding-left:20px;
+      padding-right:20px;
+    }
+
+    #nav h1 a {
+      font-size:22px;
+    }
+
+    #nav li {
+      font-size:12px;
+      padding: 0 10px;
+    }
+
+    #content {
+      margin-top:0;
+      padding-top:20px;
+      font-size:12px;
+    }
+
+    #content h1 {
+      font-size:20px;
+    }
+
+    #content h2 {
+      font-size:18px;
+    }
+
+    .posts_listing li div{
+      font-size:12px;
+    }
+  }
+</style>
+
+
+    <link rel="shortcut icon" href="/favicon.ico">
+
+    
+  </head>
+
+  <body>
+    <section id=nav>
+      <h1><a href="/"></a></h1>
+      <ul>
+        
+      </ul>
+    </section>
+
+
+<section id=content>
+  <h1> GeoTiff图像拼接 </h1>
+
+  <div id=sub-header>
+    December 2017 · 3 minute read
+  </div>
+
+  <div class="entry-content">
+    <p><strong>GeoTiff</strong> 作为 TIFF 的一种扩展, 在 TIFF 的基础上定义了一些地理标签 , 来对各种坐标系统、椭球基准、投影信息等进行定义和存储, 使图像数据和地理数据存储在同一图像文件中。</p>
+
+<p>今天我们要用到的数据是 ASTER 数字高程地形数据，可以在 <a href="https://earthexplorer.usgs.gov/">USGS Earth Explorer site</a> 注册后，自定义区域下载。</p>
+
+<p>ASTER 每幅图像是范围为 1° × 1° 且分辨率为 1 arc-second (~30m) 的 GeoTiff 格式文件。其<strong>命名方式</strong>类似于：</p>
+
+<p><code>ASTGTM2_N26E116_dem.tif</code></p>
+
+<p>其中 <code>N26E116</code> 表示左下角的经纬度坐标。这幅图像的<strong>地理变换信息</strong>信息如下：</p>
+
+<p><code>(115.99986111111112, 0.0002777777777777778, 0.0, 27.000138888888888, 0.0, -0.0002777777777777778)</code></p>
+
+<p>其对应的分别是：</p>
+
+<p><code>x0, dx, dxdy, y0, dydx, dy</code></p>
+
+<p>x0 即最小经度，dx 和 dy 是经纬度方向的变化率（数值等于经纬度范围除以格点数），<strong>注意</strong>这里 dy 为负值，因此 y0 为最大纬度。如果 dy 为正，则 y0 应为最小纬度。</p>
+
+<p>这幅图像的<strong>投影信息</strong>如下（其实 ASTER 同一数据源的所有图像的投影信息都是一样的）：</p>
+
+<p><code>GEOGCS[&quot;WGS 84&quot;,DATUM[&quot;WGS_1984&quot;,SPHEROID[&quot;WGS 84&quot;,6378137,298.257223563,AUTHORITY[&quot;EPSG&quot;,&quot;7030&quot;]],AUTHORITY[&quot;EPSG&quot;,&quot;6326&quot;]],PRIMEM[&quot;Greenwich&quot;,0],UNIT[&quot;degree&quot;,0.0174532925199433],AUTHORITY[&quot;EPSG&quot;,&quot;4326&quot;]]</code></p>
+
+<p>我们今天要做的是将若干幅数字图像拼接起来，形成一个更大的图像。简单来说就是像拼积木一样拼起来，道理很简单。</p>
+
+<p>我们利用的工具是 <strong><a href="http://www.gdal.org/">GDAL（Geospatial Data Abstraction Library）</a></strong>。GDAL 是一个开源栅格空间数据转换库。有很多著名的 GIS 类产品都使用了GDAL/OGR库，包括 ESRI 的 ARCGIS 9.3，Google Earth 和跨平台的 GRASS GIS 系统。利用 GDAL/OGR 库，可以使基于 Linux 的地理空间数据管理系统提供对矢量和栅格文件数据的支持。</p>
+
+<p>Python 有调用 GDAL 的软件包，关于 GDAL 的安装和 python GDAL 软件包的安装可以参考其网站<a href="https://pypi.python.org/pypi/GDAL/">说明</a>。
+需要注意的是 Windows 和 linux 下 GDAL 的安装问题。</p>
+
+<p>GeoTiff 的读取方法 <code>read_geotiff</code> 附后，默认参数表示读取 band 1 通道的数据，返回数据矩阵、地理变换参数、投影信息。</p>
+
+<p>ASTER GeoTiff 瓦片图的拼接方法 <code>combine_ASTER</code> 亦附后，其中参数 <code>dirname</code> 表示 geotiff 文件放置的位置，<code>ll</code> 和 <code>ur</code> 分别是左下（lower left）和右上（upper right）角的经纬度（<strong>注意</strong>，这里指的是对应于 ASTER geotiff 文件的命名，而不是最后拼接出来的范围）。必要的注释附在代码里。</p>
+
+<pre><code>#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# @Date    : 2017-12-27 17:08:07
+# @Author  : wormone (renyuuu@gmail.com)
+# @Link    : http://github.com/wormone
+# @Version : $Id$
+
+import os
+import gdal
+import numpy as np
+import matplotlib.pyplot as plt
+from osgeo import gdal, gdalconst, osr
+from gdalconst import *
+
+
+def read_geotiff(tif_fn, band=1, isPlot=False):
+    gdal.UseExceptions()
+    ds = gdal.Open(tif_fn)
+    band = ds.GetRasterBand(band)
+    data = band.ReadAsArray()
+    nrows, ncols = data.shape
+    x0, dx, dxdy, y0, dydx, dy = ds.GetGeoTransform()  # [x0,y0] left bottom point
+    x1 = x0 + dx * ncols
+    y1 = y0 + dy * nrows  # [x1, y1] right top point
+    geoTransform = ds.GetGeoTransform()
+    projection = ds.GetProjection()
+    # print(nrows, ncols)
+    # print(geoTransform)
+    # print(projection)
+    if isPlot:
+        plt.imshow(data, cmap='gist_earth', extent=[x0, x1, y1, y0])
+        cbar = plt.colorbar(orientation='vertical', shrink=0.5)
+        plt.show()
+    return data, geoTransform, projection
+
+
+def combine_ASTER(dirname, ll=(116, 26), ur=(120, 32), isPreView=True, out_fn='merged.tif'):
+
+    def bbox_to_fns(ll=ll, ur=ur):
+        y, x = np.mgrid[ll[1]:ur[1]+1:1, ll[0]:ur[0]+1:1]
+        shp = x.shape
+        x, y = [_.ravel() for _ in [x, y]]
+        points = [[x[_], y[_]] for _ in range(len(x))]
+        fn = 'ASTGTM2_N{}E{}_dem.tif'
+        fns = [fn.format(points[_][1], points[_][0]) for _ in range(len(points))]
+        return fns, shp
+
+    fns, shp = bbox_to_fns(ll=ll, ur=ur)
+    # print fns
+
+    def get_postion(fn):
+        import re
+        position = re.findall(r'N(\d{1,5})E(\d{1,5})', fn)[0]  # only for N ande E, not S and W
+        position = [float(_) for _ in position]
+        return position
+
+    # 画出文件命名中的左下角点位，用于查看要拼接的范围
+    if isPreView:
+        plt.hold(True)
+        datas, lblons, rtlats, positions = [list(range(len(fns))) for i in range(4)]
+        for _ in positions:
+            fn_full = os.path.join(dirname, fns[_])
+            positions[_] = get_postion(fn_full)
+            plt.plot(positions[_][1], positions[_][0], 'ro')
+            datas[_], geoTransform, projection = read_geotiff(fn_full)
+            lblons[_], rtlats[_] = geoTransform[0], geoTransform[3]
+        plt.show()
+
+    # 拼接后图像的地理变换信息
+    geoTransform = list(geoTransform)
+    geoTransform[0], geoTransform[3] = lblons[0], rtlats[-1]  # lblon 取最小（不变），rtlat 取最大
+    geoTransform = tuple(geoTransform)
+
+    # 数据拼接（没有找到现成的方法，自己实现一下）
+    col, row = shp
+    cols = list(range(col))
+    for _ in cols:
+        cols[_] = np.hstack(np.array(datas)[_*row:(_+1)*row, :, :])
+    datas = np.vstack(cols[::-1])
+    height, width = datas.shape
+    # print(height, width)
+
+    # 写出 GeoTiff 数据文件（注意高程数据数值范围超过 255，不能用 gdal.GDT_Byte）
+    driver = gdal.GetDriverByName('GTiff')
+    ds = driver.Create(out_fn, width, height, 1, gdal.GDT_UInt16)  # band No. 1  # !!! gdal.GDT_UInt16
+    ds.SetProjection(projection)
+    ds.SetGeoTransform(geoTransform)
+    ds.GetRasterBand(1).WriteArray(datas, 0, 0)
+    ds = None
+
+    return datas, geoTransform, projection
+
+
+if __name__ == '__main__':
+    # 这里个人习惯上都是用于测试校验结果的
+
+    data, geoTransform, projection = read_geotiff(
+        os.path.join('ASTER_zhejiang', 'dem', 'ASTGTM2_N26E116_dem.tif'), isPlot=True)
+    print geoTransform
+    print projection
+    print data
+
+    dirname = os.path.join('ASTER_zhejiang', 'dem')
+    ll, ur = (116, 26), (116, 26)
+    combine_ASTER(dirname, ll, ur, out_fn='merged.tif')
+
+    datas, geoTransform, projection = read_geotiff('merged.tif', isPlot=True)
+    print geoTransform
+    print datas
+
+</code></pre>
+
+  </div>
+
+  <div id=links>
+    
+      <a class="basic-alignment left" href="https://wormone.github.io/notebook/post/%E6%95%B0%E6%8D%AE%E6%90%9C%E9%9B%86%E5%92%8C%E6%95%B4%E7%90%86%EF%BC%9Arequests%E5%92%8Cpandas%E7%9A%84%E7%AE%80%E5%8D%95%E5%BA%94%E7%94%A8%E7%A4%BA%E4%BE%8B/">&laquo; 数据搜集和整理：requests和pandas的简单应用示例</a>
+    
+    
+  </div>
+</section>
+
+  </div>
+  
+</body>
+</html>
+
+
+

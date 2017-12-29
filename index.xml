@@ -6,8 +6,161 @@
     <description>Recent content on A notebook on data analysis in python</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Tue, 31 Oct 2017 19:21:15 +0800</lastBuildDate>
+    <lastBuildDate>Fri, 29 Dec 2017 09:21:15 +0800</lastBuildDate>
     <atom:link href="https://wormone.github.io/notebook/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>GeoTiff图像拼接</title>
+      <link>https://wormone.github.io/notebook/post/GeoTiff%E5%9B%BE%E5%83%8F%E6%8B%BC%E6%8E%A5/</link>
+      <pubDate>Fri, 29 Dec 2017 09:21:15 +0800</pubDate>
+      
+      <guid>https://wormone.github.io/notebook/post/GeoTiff%E5%9B%BE%E5%83%8F%E6%8B%BC%E6%8E%A5/</guid>
+      <description>&lt;p&gt;&lt;strong&gt;GeoTiff&lt;/strong&gt; 作为 TIFF 的一种扩展, 在 TIFF 的基础上定义了一些地理标签 , 来对各种坐标系统、椭球基准、投影信息等进行定义和存储, 使图像数据和地理数据存储在同一图像文件中。&lt;/p&gt;
+
+&lt;p&gt;今天我们要用到的数据是 ASTER 数字高程地形数据，可以在 &lt;a href=&#34;https://earthexplorer.usgs.gov/&#34;&gt;USGS Earth Explorer site&lt;/a&gt; 注册后，自定义区域下载。&lt;/p&gt;
+
+&lt;p&gt;ASTER 每幅图像是范围为 1° × 1° 且分辨率为 1 arc-second (~30m) 的 GeoTiff 格式文件。其&lt;strong&gt;命名方式&lt;/strong&gt;类似于：&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;ASTGTM2_N26E116_dem.tif&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;其中 &lt;code&gt;N26E116&lt;/code&gt; 表示左下角的经纬度坐标。这幅图像的&lt;strong&gt;地理变换信息&lt;/strong&gt;信息如下：&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;(115.99986111111112, 0.0002777777777777778, 0.0, 27.000138888888888, 0.0, -0.0002777777777777778)&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;其对应的分别是：&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;x0, dx, dxdy, y0, dydx, dy&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;x0 即最小经度，dx 和 dy 是经纬度方向的变化率（数值等于经纬度范围除以格点数），&lt;strong&gt;注意&lt;/strong&gt;这里 dy 为负值，因此 y0 为最大纬度。如果 dy 为正，则 y0 应为最小纬度。&lt;/p&gt;
+
+&lt;p&gt;这幅图像的&lt;strong&gt;投影信息&lt;/strong&gt;如下（其实 ASTER 同一数据源的所有图像的投影信息都是一样的）：&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;GEOGCS[&amp;quot;WGS 84&amp;quot;,DATUM[&amp;quot;WGS_1984&amp;quot;,SPHEROID[&amp;quot;WGS 84&amp;quot;,6378137,298.257223563,AUTHORITY[&amp;quot;EPSG&amp;quot;,&amp;quot;7030&amp;quot;]],AUTHORITY[&amp;quot;EPSG&amp;quot;,&amp;quot;6326&amp;quot;]],PRIMEM[&amp;quot;Greenwich&amp;quot;,0],UNIT[&amp;quot;degree&amp;quot;,0.0174532925199433],AUTHORITY[&amp;quot;EPSG&amp;quot;,&amp;quot;4326&amp;quot;]]&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;我们今天要做的是将若干幅数字图像拼接起来，形成一个更大的图像。简单来说就是像拼积木一样拼起来，道理很简单。&lt;/p&gt;
+
+&lt;p&gt;我们利用的工具是 &lt;strong&gt;&lt;a href=&#34;http://www.gdal.org/&#34;&gt;GDAL（Geospatial Data Abstraction Library）&lt;/a&gt;&lt;/strong&gt;。GDAL 是一个开源栅格空间数据转换库。有很多著名的 GIS 类产品都使用了GDAL/OGR库，包括 ESRI 的 ARCGIS 9.3，Google Earth 和跨平台的 GRASS GIS 系统。利用 GDAL/OGR 库，可以使基于 Linux 的地理空间数据管理系统提供对矢量和栅格文件数据的支持。&lt;/p&gt;
+
+&lt;p&gt;Python 有调用 GDAL 的软件包，关于 GDAL 的安装和 python GDAL 软件包的安装可以参考其网站&lt;a href=&#34;https://pypi.python.org/pypi/GDAL/&#34;&gt;说明&lt;/a&gt;。
+需要注意的是 Windows 和 linux 下 GDAL 的安装问题。&lt;/p&gt;
+
+&lt;p&gt;GeoTiff 的读取方法 &lt;code&gt;read_geotiff&lt;/code&gt; 附后，默认参数表示读取 band 1 通道的数据，返回数据矩阵、地理变换参数、投影信息。&lt;/p&gt;
+
+&lt;p&gt;ASTER GeoTiff 瓦片图的拼接方法 &lt;code&gt;combine_ASTER&lt;/code&gt; 亦附后，其中参数 &lt;code&gt;dirname&lt;/code&gt; 表示 geotiff 文件放置的位置，&lt;code&gt;ll&lt;/code&gt; 和 &lt;code&gt;ur&lt;/code&gt; 分别是左下（lower left）和右上（upper right）角的经纬度（&lt;strong&gt;注意&lt;/strong&gt;，这里指的是对应于 ASTER geotiff 文件的命名，而不是最后拼接出来的范围）。必要的注释附在代码里。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# @Date    : 2017-12-27 17:08:07
+# @Author  : wormone (renyuuu@gmail.com)
+# @Link    : http://github.com/wormone
+# @Version : $Id$
+
+import os
+import gdal
+import numpy as np
+import matplotlib.pyplot as plt
+from osgeo import gdal, gdalconst, osr
+from gdalconst import *
+
+
+def read_geotiff(tif_fn, band=1, isPlot=False):
+    gdal.UseExceptions()
+    ds = gdal.Open(tif_fn)
+    band = ds.GetRasterBand(band)
+    data = band.ReadAsArray()
+    nrows, ncols = data.shape
+    x0, dx, dxdy, y0, dydx, dy = ds.GetGeoTransform()  # [x0,y0] left bottom point
+    x1 = x0 + dx * ncols
+    y1 = y0 + dy * nrows  # [x1, y1] right top point
+    geoTransform = ds.GetGeoTransform()
+    projection = ds.GetProjection()
+    # print(nrows, ncols)
+    # print(geoTransform)
+    # print(projection)
+    if isPlot:
+        plt.imshow(data, cmap=&#39;gist_earth&#39;, extent=[x0, x1, y1, y0])
+        cbar = plt.colorbar(orientation=&#39;vertical&#39;, shrink=0.5)
+        plt.show()
+    return data, geoTransform, projection
+
+
+def combine_ASTER(dirname, ll=(116, 26), ur=(120, 32), isPreView=True, out_fn=&#39;merged.tif&#39;):
+
+    def bbox_to_fns(ll=ll, ur=ur):
+        y, x = np.mgrid[ll[1]:ur[1]+1:1, ll[0]:ur[0]+1:1]
+        shp = x.shape
+        x, y = [_.ravel() for _ in [x, y]]
+        points = [[x[_], y[_]] for _ in range(len(x))]
+        fn = &#39;ASTGTM2_N{}E{}_dem.tif&#39;
+        fns = [fn.format(points[_][1], points[_][0]) for _ in range(len(points))]
+        return fns, shp
+
+    fns, shp = bbox_to_fns(ll=ll, ur=ur)
+    # print fns
+
+    def get_postion(fn):
+        import re
+        position = re.findall(r&#39;N(\d{1,5})E(\d{1,5})&#39;, fn)[0]  # only for N ande E, not S and W
+        position = [float(_) for _ in position]
+        return position
+
+    # 画出文件命名中的左下角点位，用于查看要拼接的范围
+    if isPreView:
+        plt.hold(True)
+        datas, lblons, rtlats, positions = [list(range(len(fns))) for i in range(4)]
+        for _ in positions:
+            fn_full = os.path.join(dirname, fns[_])
+            positions[_] = get_postion(fn_full)
+            plt.plot(positions[_][1], positions[_][0], &#39;ro&#39;)
+            datas[_], geoTransform, projection = read_geotiff(fn_full)
+            lblons[_], rtlats[_] = geoTransform[0], geoTransform[3]
+        plt.show()
+
+    # 拼接后图像的地理变换信息
+    geoTransform = list(geoTransform)
+    geoTransform[0], geoTransform[3] = lblons[0], rtlats[-1]  # lblon 取最小（不变），rtlat 取最大
+    geoTransform = tuple(geoTransform)
+
+    # 数据拼接（没有找到现成的方法，自己实现一下）
+    col, row = shp
+    cols = list(range(col))
+    for _ in cols:
+        cols[_] = np.hstack(np.array(datas)[_*row:(_+1)*row, :, :])
+    datas = np.vstack(cols[::-1])
+    height, width = datas.shape
+    # print(height, width)
+
+    # 写出 GeoTiff 数据文件（注意高程数据数值范围超过 255，不能用 gdal.GDT_Byte）
+    driver = gdal.GetDriverByName(&#39;GTiff&#39;)
+    ds = driver.Create(out_fn, width, height, 1, gdal.GDT_UInt16)  # band No. 1  # !!! gdal.GDT_UInt16
+    ds.SetProjection(projection)
+    ds.SetGeoTransform(geoTransform)
+    ds.GetRasterBand(1).WriteArray(datas, 0, 0)
+    ds = None
+
+    return datas, geoTransform, projection
+
+
+if __name__ == &#39;__main__&#39;:
+    # 这里个人习惯上都是用于测试校验结果的
+
+    data, geoTransform, projection = read_geotiff(
+        os.path.join(&#39;ASTER_zhejiang&#39;, &#39;dem&#39;, &#39;ASTGTM2_N26E116_dem.tif&#39;), isPlot=True)
+    print geoTransform
+    print projection
+    print data
+
+    dirname = os.path.join(&#39;ASTER_zhejiang&#39;, &#39;dem&#39;)
+    ll, ur = (116, 26), (116, 26)
+    combine_ASTER(dirname, ll, ur, out_fn=&#39;merged.tif&#39;)
+
+    datas, geoTransform, projection = read_geotiff(&#39;merged.tif&#39;, isPlot=True)
+    print geoTransform
+    print datas
+
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
     
     <item>
       <title>数据搜集和整理：requests和pandas的简单应用示例</title>
