@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
+    <base href="https://wormone.github.io/notebook/">
+    
+
+    <link rel="dns-prefetch" href="//fonts.googleapis.com/">
+
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Old+Standard+TT:400' rel='stylesheet' type='text/css'>
+
+    <title>
+      
+      
+         中圆点算法（Midpoint circle algorithm）的简单实现 
+      
+    </title>
+    <link rel="canonical" href="https://wormone.github.io/notebook/post/%E4%B8%AD%E5%9C%86%E7%82%B9%E7%AE%97%E6%B3%95%EF%BC%88Midpoint%20circle%20algorithm%EF%BC%89%E7%9A%84%E7%AE%80%E5%8D%95%E5%AE%9E%E7%8E%B0/">
+
+    <style>
+  * {
+    border:0;
+    font:inherit;
+    font-size:100%;
+    vertical-align:baseline;
+    margin:0;
+    padding:0;
+    color: black;
+  }
+
+  body {
+    font-family:'Open Sans', 'Myriad Pro', Myriad, sans-serif;
+    font-size:17px;
+    line-height:160%;
+    color:#1d1313;
+    max-width:700px;
+    margin:auto;
+  }
+
+  p {
+    margin: 5px 0 10px 0;
+  }
+
+  a img {
+    border:none;
+  }
+
+  img {
+    margin: 10px auto 10px auto;
+    max-width: 100%;
+    display: block;
+  }
+
+  pre, code {
+    font: 12px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    background-color: #f7f7f7;
+  }
+
+  code {
+    font-size: 12px;
+    padding: 4px;
+  }
+
+  pre {
+    margin-top: 0;
+    margin-bottom: 16px;
+    word-wrap: normal;
+    padding: 16px;
+    overflow: auto;
+    font-size: 85%;
+    line-height: 1.45;
+  }
+
+  pre>code {
+    padding: 0;
+    margin: 0;
+    font-size: 100%;
+    word-break: normal;
+    white-space: pre;
+    background: transparent;
+    border: 0;
+  }
+
+  pre code {
+    display: inline;
+    max-width: auto;
+    padding: 0;
+    margin: 0;
+    overflow: visible;
+    line-height: inherit;
+    word-wrap: normal;
+    background-color: transparent;
+    border: 0;
+  }
+
+  pre code::before,
+  pre code::after {
+    content: normal;
+  }
+
+  em,q,em,dfn {
+    font-style:italic;
+  }
+
+  .sans,html .gist .gist-file .gist-meta {
+    font-family:"Open Sans","Myriad Pro",Myriad,sans-serif;
+  }
+
+  .mono,pre,code,tt,p code,li code {
+    font-family:Menlo,Monaco,"Andale Mono","lucida console","Courier New",monospace;
+  }
+
+  .heading,.serif,h1,h2,h3 {
+    font-family:"Old Standard TT",serif;
+  }
+
+  strong {
+    font-weight:600;
+  }
+
+  q:before {
+    content:"\201C";
+  }
+
+  q:after {
+    content:"\201D";
+  }
+
+  del,s {
+    text-decoration:line-through;
+  }
+
+  blockquote {
+    font-family:"Old Standard TT",serif;
+    text-align:center;
+    padding:50px;
+  }
+
+  blockquote p {
+    display:inline-block;
+    font-style:italic;
+  }
+
+  blockquote:before,blockquote:after {
+    font-family:"Old Standard TT",serif;
+    content:'\201C';
+    font-size:35px;
+    color:#403c3b;
+  }
+
+  blockquote:after {
+    content:'\201D';
+  }
+
+  hr {
+    width:40%;
+    height: 1px;
+    background:#403c3b;
+    margin: 25px auto;
+  }
+
+  h1 {
+    font-size:35px;
+  }
+
+  h2 {
+    font-size:28px;
+  }
+
+  h3 {
+    font-size:22px;
+    margin-top:18px;
+  }
+
+  h1 a,h2 a,h3 a {
+    text-decoration:none;
+  }
+
+  h1,h2 {
+    margin-top:28px;
+  }
+
+  #sub-header, time {
+    color:#403c3b;
+    font-size:13px;
+  }
+
+  #sub-header {
+    margin: 0 4px;
+  }
+
+  #nav h1 a {
+    font-size:35px;
+    color:#1d1313;
+    line-height:120%;
+  }
+
+  .posts_listing a,#nav a {
+    text-decoration: none;
+  }
+
+  li {
+    margin-left: 20px;
+  }
+
+  ul li {
+    margin-left: 5px;
+  }
+
+  ul li {
+    list-style-type: none;
+  }
+  ul li:before {
+    content:"\00BB \0020";
+  }
+
+  #nav ul li:before, .posts_listing li:before {
+    content:'';
+    margin-right:0;
+  }
+
+  #content {
+    text-align:left;
+    width:100%;
+    font-size:15px;
+    padding:60px 0 80px;
+  }
+
+  #content h1,#content h2 {
+    margin-bottom:5px;
+  }
+
+  #content h2 {
+    font-size:25px;
+  }
+
+  #content .entry-content {
+    margin-top:15px;
+  }
+
+  #content time {
+    margin-left:3px;
+  }
+
+  #content h1 {
+    font-size:30px;
+  }
+
+  .highlight {
+    margin: 10px 0;
+  }
+
+  .posts_listing {
+    margin:0 0 50px;
+  }
+
+  .posts_listing li {
+    margin:0 0 25px 15px;
+  }
+
+  .posts_listing li a:hover,#nav a:hover {
+    text-decoration: underline;
+  }
+
+  #nav {
+    text-align:center;
+    position:static;
+    margin-top:60px;
+  }
+
+  #nav ul {
+    display: table;
+    margin: 8px auto 0 auto;
+  }
+
+  #nav li {
+    list-style-type:none;
+    display:table-cell;
+    font-size:15px;
+    padding: 0 20px;
+  }
+
+  #links {
+    margin: 50px 0 0 0;
+  }
+
+  #links :nth-child(2) {
+    float:right;
+  }
+
+  #not-found {
+    text-align: center;
+  }
+
+  #not-found a {
+    font-family:"Old Standard TT",serif;
+    font-size: 200px;
+    text-decoration: none;
+    display: inline-block;
+    padding-top: 225px;
+  }
+
+  @media (max-width: 750px) {
+    body {
+      padding-left:20px;
+      padding-right:20px;
+    }
+
+    #nav h1 a {
+      font-size:28px;
+    }
+
+    #nav li {
+      font-size:13px;
+      padding: 0 15px;
+    }
+
+    #content {
+      margin-top:0;
+      padding-top:50px;
+      font-size:14px;
+    }
+
+    #content h1 {
+      font-size:25px;
+    }
+
+    #content h2 {
+      font-size:22px;
+    }
+
+    .posts_listing li div {
+      font-size:12px;
+    }
+  }
+
+  @media (max-width: 400px) {
+    body {
+      padding-left:20px;
+      padding-right:20px;
+    }
+
+    #nav h1 a {
+      font-size:22px;
+    }
+
+    #nav li {
+      font-size:12px;
+      padding: 0 10px;
+    }
+
+    #content {
+      margin-top:0;
+      padding-top:20px;
+      font-size:12px;
+    }
+
+    #content h1 {
+      font-size:20px;
+    }
+
+    #content h2 {
+      font-size:18px;
+    }
+
+    .posts_listing li div{
+      font-size:12px;
+    }
+  }
+</style>
+
+
+    <link rel="shortcut icon" href="/favicon.ico">
+
+    
+  </head>
+
+  <body>
+    <section id=nav>
+      <h1><a href="/"></a></h1>
+      <ul>
+        
+      </ul>
+    </section>
+
+
+<section id=content>
+  <h1> 中圆点算法（Midpoint circle algorithm）的简单实现 </h1>
+
+  <div id=sub-header>
+    January 2018 · 2 minute read
+  </div>
+
+  <div class="entry-content">
+    <p>最近再做一个卫星遥感监测台风的项目，其中有个算法要提取台风中心一定半径的一圈像素然后做一些统计。查了查，原来这个算法还有个名字叫做<a href="https://en.wikipedia.org/wiki/Midpoint_circle_algorithm"><strong>中圆点算法（Midpoint circle algorithm）</strong></a>。</p>
+
+<p>中圆点算法，说简单点就是设定一个半径画个圆，然后看看哪些像素在这个圆圈上。</p>
+
+<p>其实利用 PIL 可以很简单的实现中圆点算法的功能，找出哪些像素组成了圆圈。</p>
+
+<p><img src="midpoint_circle_PIL.png" alt="midpoint_circle_PIL.tif" title="midpoint_circle_PIL.tif" /></p>
+
+<pre><code>#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import numpy as np
+import matplotlib
+import matplotlib.pyplot as plt
+from PIL import Image, ImageDraw
+
+
+def get_midpoint_circle_pixels(size=100, radius=30, isPlot=False):
+    '''get midpoint circle pixels easily with PIL
+    
+    Keyword Arguments:
+        size {number} -- image size (default: {100})
+        radius {number} -- circle radius, no more than size/2 (default: {30})
+        isPlot {bool} -- show image or not (default: {False})
+    
+    Returns:
+        x -- x coordinate
+        y -- y coordinate
+        points -- [[x[i], y[i]] for i in range(len(x))]
+    '''
+
+    # create new image, size x size pixels, 1 bit per pixel
+    image = Image.new('1', (size, size))
+    draw = ImageDraw.Draw(image)
+
+    # actually a circle was drawn
+    lower_left = size/2 - radius
+    upper_right = size/2 + radius
+    draw.ellipse((lower_left, lower_left, upper_right, upper_right), outline='white')
+
+    # image.show()
+
+    # get pixel values
+    color = list(image.getdata())
+    color = np.reshape(color, (size, size))
+
+    # get pixel coordinate with color='white'
+    grid_x, grid_y = np.mgrid[:size, :size]
+    x = grid_x[color==255].ravel()
+    y = grid_y[color==255].ravel()
+    points = [[x[_], y[_]] for _ in range(len(x))]
+
+    if isPlot:
+        plt.pcolor(color)
+        plt.axis('scaled')
+        plt.hold(True)
+        plt.plot(x, y, 'wo')
+        plt.show()
+
+    return x, y, points
+
+
+if __name__ == '__main__':
+    size = 100
+    x1, y1, _ = get_midpoint_circle_pixels(size=size, radius=10)
+    x2, y2, _ = get_midpoint_circle_pixels(size=size, radius=25)
+    x3, y3, _ = get_midpoint_circle_pixels(size=size, radius=40)
+    plt.hold(True)
+    plt.plot(x1, y1, 'ro')
+    plt.plot(x2, y2, 'go')
+    plt.plot(x3, y3, 'bo')
+    plt.axis('scaled')
+    plt.xlim(0, size)
+    plt.ylim(0, size)
+    plt.show()
+
+</code></pre>
+
+  </div>
+
+  <div id=links>
+    
+      <a class="basic-alignment left" href="https://wormone.github.io/notebook/post/GeoTiff%E5%9B%BE%E5%83%8F%E6%8B%BC%E6%8E%A5/">&laquo; GeoTiff图像拼接</a>
+    
+    
+  </div>
+</section>
+
+  </div>
+  
+</body>
+</html>
+
+
+
