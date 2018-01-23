@@ -495,37 +495,55 @@ print points
 
 <ol>
 <li>先预定输出排列好的列表为 ring；</li>
-<li>从 points 里随便拿出一个点，放入 ring；</li>
-<li>然后找到下一个点追加到 ring 里面，直到结束；
+<li>从 points 里找到 <strong>center top</strong> 的那一个点，放入 ring；</li>
+<li>然后按照顺时针方向找到下一个点追加到 ring 里面，直到结束；
 
 <ul>
-<li>这个点必然在上一个点周围的八个点之中；</li>
-<li>只要从这八个点里面找到一个点，当它在 points 里但是尚未在 ring 里，那就找到了。</li>
+<li>这个点必然在上一个点周围的 8 个点之中；</li>
+<li>按照先<strong>上/右/下/左</strong>然后<strong>右上/右下/左下/左上</strong>顺序搜索；</li>
+<li>只要从这 8 个点里面找到一个点，当它在 points 里但是尚未在 ring 里，那就找到了；</li>
+<li><strong>特别注意</strong>，第一次搜索时，只需要找到唯一一个 next 点，这才能确保 ring 的排序方向。</li>
 </ul></li>
 </ol>
 
-<pre><code>ring = [points[0],]
+<pre><code># sort points clockwise
+ymax = max(y)
+xmid = int(np.median(x))
+first_point = [xmid, ymax]
+ring = [first_point,]
 for _ in range(len(points)):
     x, y = ring[-1]
-    possible = [[x-1, y], [x-1, y+1], [x, y+1], [x+1, y+1], [x+1, y], [x+1, y-1], [x, y-1], [x-1, y-1]]
+    # search in the 8 points around: firstly top/right/bottom/left and secondly ur/lr/ll/ul
+    possible = [
+        [x, y+1], [x+1, y], [x, y-1], [x-1, y],
+        [x+1, y+1], [x+1, y-1], [x-1, y-1], [x-1, y+1]]
     for p in possible:
         if (p in points) and (p not in ring):
             ring.append(p)
-
+            # at the first point, find the only one next point: this will insure the direction
+            if len(ring) == 2:
+                break
 x = [ring[_][0] for _ in range(len(ring))]
 y = [ring[_][1] for _ in range(len(ring))]
 points = [[x[_], y[_]] for _ in range(len(x))]
-print x
-print y
-print points
 </code></pre>
 
-<pre><code>[2, 2, 2, 2, 2, 3, 3, 4, 5, 6, 7, 7, 8, 8, 8, 8, 8, 7, 7, 6, 5, 4, 3, 3]
-[3, 4, 5, 6, 7, 7, 8, 8, 8, 8, 8, 7, 7, 6, 5, 4, 3, 3, 2, 2, 2, 2, 2, 3]
-[[2, 3], [2, 4], [2, 5], [2, 6], [2, 7], [3, 7], [3, 8], [4, 8], [5, 8], [6, 8], [7, 8], [7, 7], [8, 7], [8, 6], [8, 5], [8, 4], [8, 3], [7, 3], [7, 2], [6, 2], [5, 2], [4, 2], [3, 2], [3, 3]]
+<p>这样就完成了 x, y, points 的排列。这几句话可以追加到 <code>get_midpoint_circle_pixels()</code> 方法里，直接输出排序结果。最后画个图出来验证一下排序结果是否正确：</p>
+
+<pre><code>size = 50
+for r in range(1, 23):
+    x, y, points = get_midpoint_circle_pixels(size=size, radius=r)
+    plt.plot(x, y, '-s', label=str(r))
+    plt.axis('scaled')
+    plt.xlim(0, size)
+    plt.ylim(0, size)
+    # plt.legend(loc='best')
+plt.show()
 </code></pre>
 
-<p>这样就完成了 x, y, points 的排列。这几句话可以追加到 <code>get_midpoint_circle_pixels()</code> 方法里，直接输出排序结果。</p>
+<p><img src="midpoint_circle_ring.png" alt="midpoint_circle_ring.tif" title="midpoint_circle_ring.tif" /></p>
+
+<p>结果是正确的。</p>
 
   </div>
 
