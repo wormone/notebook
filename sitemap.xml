@@ -2,6 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://wormone.github.io/notebook/post/%E5%90%91%E9%87%8F%EF%BC%88%E7%9B%B4%E7%BA%BF%EF%BC%89%E4%B8%8E%E6%A0%85%E6%A0%BC%E5%9B%BE%E5%83%8F%E7%9A%84%E4%BA%A4%E7%82%B9%EF%BC%88%E5%83%8F%E5%85%83%EF%BC%89%E8%AE%A1%E7%AE%97/</loc>
+    <lastmod>2018-02-27T22:35:15+08:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://wormone.github.io/notebook/post/%E4%B8%AD%E5%9C%86%E7%82%B9%E7%AE%97%E6%B3%95%EF%BC%88Midpoint%20circle%20algorithm%EF%BC%89%E7%9A%84%E7%AE%80%E5%8D%95%E5%AE%9E%E7%8E%B0/</loc>
     <lastmod>2018-01-22T14:35:15+08:00</lastmod>
   </url>
@@ -83,13 +88,13 @@
   
   <url>
     <loc>https://wormone.github.io/notebook/</loc>
-    <lastmod>2018-01-22T14:35:15+08:00</lastmod>
+    <lastmod>2018-02-27T22:35:15+08:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>https://wormone.github.io/notebook/post/</loc>
-    <lastmod>2018-01-22T14:35:15+08:00</lastmod>
+    <lastmod>2018-02-27T22:35:15+08:00</lastmod>
     <priority>0</priority>
   </url>
   

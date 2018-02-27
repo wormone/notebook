@@ -6,8 +6,110 @@
     <description>Recent content in Posts on A notebook on data analysis in python</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Mon, 22 Jan 2018 14:35:15 +0800</lastBuildDate>
+    <lastBuildDate>Tue, 27 Feb 2018 22:35:15 +0800</lastBuildDate>
     <atom:link href="https://wormone.github.io/notebook/post/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>向量（直线）与栅格图像的交点（像元）计算</title>
+      <link>https://wormone.github.io/notebook/post/%E5%90%91%E9%87%8F%EF%BC%88%E7%9B%B4%E7%BA%BF%EF%BC%89%E4%B8%8E%E6%A0%85%E6%A0%BC%E5%9B%BE%E5%83%8F%E7%9A%84%E4%BA%A4%E7%82%B9%EF%BC%88%E5%83%8F%E5%85%83%EF%BC%89%E8%AE%A1%E7%AE%97/</link>
+      <pubDate>Tue, 27 Feb 2018 22:35:15 +0800</pubDate>
+      
+      <guid>https://wormone.github.io/notebook/post/%E5%90%91%E9%87%8F%EF%BC%88%E7%9B%B4%E7%BA%BF%EF%BC%89%E4%B8%8E%E6%A0%85%E6%A0%BC%E5%9B%BE%E5%83%8F%E7%9A%84%E4%BA%A4%E7%82%B9%EF%BC%88%E5%83%8F%E5%85%83%EF%BC%89%E8%AE%A1%E7%AE%97/</guid>
+      <description>&lt;p&gt;这次还是一个卫星项目，问题是这样的：&lt;/p&gt;
+
+&lt;p&gt;在一个栅格图像上，有一个点的位置上有一个向量，需要计算的是这个向量所在的直线所经过的像元有哪些。&lt;/p&gt;
+
+&lt;p&gt;问题看上去简单，但似乎实现起来还有点麻烦。&lt;/p&gt;
+
+&lt;p&gt;还好我们有 PIL 可以用，问题就简化成只要找到这条直线的两个&lt;strong&gt;端点&lt;/strong&gt;就行了，思路是这样的：&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;这两个端点必然在栅格图像最外圈上，只要找到这上面的两个点就行了；&lt;/li&gt;
+&lt;li&gt;首先提取最外圈所有像素的坐标，然后计算每个点与给定点之间的向量，计算该向量与所给向量之前&lt;strong&gt;相互平行&lt;/strong&gt;的一个度量；&lt;/li&gt;
+&lt;li&gt;找到最为相互平行的两个度量所对应的点，那就基本大功告成了。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;最后利用 PIL，把找到的两个点在栅格图像上画出直线，找到直线经过的像素点就完成了。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import os
+import numpy as np
+import matplotlib
+import matplotlib.pyplot as plt
+from PIL import Image, ImageDraw
+
+
+def vector_across_image(p=(10, 30), u=-1, v=2, size=100, isPlot=False):
+    &amp;quot;&amp;quot;&amp;quot;vector line across a square image
+    
+    A point on the image with a direction like u,v components, make a vector,
+    which across the image, result as a line of pixels
+    
+    Keyword Arguments:
+        p {tuple} -- position of the point on the image (default: {(10, 30)})
+        u {number} -- u component (default: {-1})
+        v {number} -- v component (default: {2})
+        size {number} -- image size (default: {100})
+        isPlot {bool} -- view the result or not (default: {False})
+    
+    Returns:
+        points -- pixels on the line
+    &amp;quot;&amp;quot;&amp;quot;
+    # make a square
+    x, y = np.mgrid[:size, :size]
+    # take the outline of the square
+    outline = zip(x[0, :], y[0, :]) + zip(x[-1, :], y[-1, :]) \
+            + zip(x[:, 0], y[:, 0]) + zip(x[:, -1], y[:, -1])
+    outline = np.array(outline)
+
+    # find the two interception points on the outline, i.e. p0 and p1
+    # delta = [(_[0]-p[0])*v - (_[1]-p[1])*u for _ in outline]
+    delta = (outline[:, 0] - p[0]) * v - (outline[:, 1] -p[1]) * u
+    delta = np.abs(delta)
+    ascding = np.argsort(delta)
+    p0 = outline[ascding[0]]
+    p1 = outline[ascding[1]]
+
+    # get the line using PIL
+    image = Image.new(&#39;1&#39;, (size, size))
+    draw = ImageDraw.Draw(image)
+    draw.line((p0[0], p0[1], p1[0], p1[1]), fill=&#39;white&#39;)
+    color = list(image.getdata())
+    color = np.reshape(color, (size, size))
+    px = y[color==255].ravel()  # !!! x--&amp;gt;y
+    py = x[color==255].ravel()  # !!! y--&amp;gt;x
+    points = zip(px, py)
+
+    if isPlot:
+        plt.subplot(211)
+        plt.plot(px, py, &#39;rs&#39;)
+        plt.plot(p[0], p[1], &#39;ko&#39;, ms=20)
+        plt.plot([p0[0], p1[0]], [p0[1], p1[1]], &#39;b-&#39;)
+        plt.axis(&#39;scaled&#39;)
+        plt.axis([0, size, 0, size])
+        plt.subplot(212)
+        plt.imshow(color)
+        plt.show()
+
+    return points, color
+
+
+def test():
+    points, color = vector_across_image(p=(10, 30), u=-1, v=2, size=100, isPlot=True)
+    # print color
+
+
+if __name__ == &#39;__main__&#39;:
+    test()
+    # from timeit import timeit
+    # t = timeit(&#39;vector_across_image()&#39;, &#39;from __main__ import vector_across_image&#39;, number=140*140)
+    # print(t)
+
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
     
     <item>
       <title>中圆点算法（Midpoint circle algorithm）的简单实现</title>
@@ -807,87 +909,6 @@ if __name__ == &#39;__main__&#39;:
 &lt;p&gt;单点的数据很简单。网格化数据是以等值线分析为基础的，这个工作可以交由我们熟悉的&lt;strong&gt;matplotlib&lt;/strong&gt;来完成，其输出结果再由&lt;strong&gt;geojsoncontour&lt;/strong&gt;这个第三方软件包转换为geojson格式即可（该软件包在github上可以找到，其中的一个小bug已被我们修复）。&lt;/p&gt;
 
 &lt;p&gt;leaflet.js提供了丰富的方法用户展示基于GIS的信息，并提供了很多交互操作的功能，官方文档都有很好的示例。&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>基于机器学习的组合方法的气候预测</title>
-      <link>https://wormone.github.io/notebook/post/%E5%9F%BA%E4%BA%8E%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BB%84%E5%90%88%E6%96%B9%E6%B3%95%E7%9A%84%E6%B0%94%E5%80%99%E9%A2%84%E6%B5%8B/</link>
-      <pubDate>Thu, 13 Oct 2016 19:21:15 +0800</pubDate>
-      
-      <guid>https://wormone.github.io/notebook/post/%E5%9F%BA%E4%BA%8E%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%9A%84%E7%BB%84%E5%90%88%E6%96%B9%E6%B3%95%E7%9A%84%E6%B0%94%E5%80%99%E9%A2%84%E6%B5%8B/</guid>
-      <description>
-
-&lt;h3 id=&#34;1-气候预测的关键科学问题和方法&#34;&gt;1. 气候预测的关键科学问题和方法&lt;/h3&gt;
-
-&lt;pre&gt;&lt;code&gt;- 关键科学问题
-    - 气候系统：复杂的、高度非线性的、开放的巨系统
-    - 气候系统的可预报性：外部强迫和内部过程
-- 预测方法
-    - 统计学：统计气候学
-    - 数值模式：气候系统物理模型的数学描述和计算机应用
-    - 动力统计：数值模式 + 统计学
-    - 机器学习额
-        - 机器学习是让计算机程序随着经验积累自动提高性能
-        - 机器学习与统计学的联系和区别
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;2-机器学习-vs-统计学&#34;&gt;2. 机器学习 Vs 统计学&lt;/h3&gt;
-
-&lt;pre&gt;&lt;code&gt;- 统计学和机器学习的文化差异和本质区别
-    - 统计学更关心模型的可解释性
-        更多是关于问题本质的一个个检验，
-        目标是建立一个可以解释的问题的模型，
-        然而很多问题的复杂性使得严谨的统计模型无法被构建出来。
-    - 机器学习更关心模型的预测能力
-        目标是搭建一套高效可靠的系统，
-        能够持续的预测未来并且稳定的工作，
-        即使这种预测缺乏完美的解释。
-- 机器学习与统计学是互补的吗？
-    - http://synchuman.baijia.baidu.com/article/283931
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;3-机器学习的组合方法&#34;&gt;3. 机器学习的组合方法&lt;/h3&gt;
-
-&lt;pre&gt;&lt;code&gt;- 组合的目的
-    - 将若干基于某种算法的估计结合起来，从而提高泛化能力
-- 组合方法的分类和举例
-    - 均值法（Averaging methods）
-        - 装袋（Bagging）
-        - 随机森林（Forests of randomized trees）
-    - 提升法（Boosting methods）
-        - 自适应提升（AdaBoost）
-        - 梯度树提升（Gradient Tree Boosting）
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;4-中国降水的气候预测试验&#34;&gt;4. 中国降水的气候预测试验&lt;/h3&gt;
-
-&lt;pre&gt;&lt;code&gt;- 基础数据
-    - 中国 160 个国际气候交换站 1951 年 1 月至今逐月降水量
-    - 百项气候系统指数集：88 项大气环流指数、26 项海温指数、16 项其他指数
-- 关键技术：以夏季（JJA）降水量预测为例
-    - 设定预测目标
-        - 以各站当年夏季降水量为原始目标
-        - 以 1981-2010 为气候基准期，计算历年夏季降水量距平百分率
-        - 以某种标准将降水量划分为若干等级作为预测目标 Y
-    - 预测因子筛选
-        - 以前一年 7 月至当年 4 月各项气候系统指数为候选因子
-        - 计算 Pearson 相关系数和 Spearman 相关系数，并进行显著性检验
-        - 通过显著性检验的因子构成预测因子 X
-    - 组合方法和交叉验证
-        - 构建组合分类器
-            - 均值法：Bagging, RandomForest, ExtraTrees
-            - 提升法：AdaBoost, GradientBoosting
-        - 交叉验证（分类器性能评价）
-            - 样本时段：1951-2010 共 60 年
-            - 迭代器：采用 Stratified k-fold
-            - 计算交叉验证得分 S
-            - S 减去气候概率，即为预测技巧得分
-    - 业务化方案
-        - 每年年初开始自动发布当年夏季降水量预测
-        - 单站预测和区域分布图均可自动化制作
-        - 组合方法同时可以预测出单站各降水等级出现的概率
-&lt;/code&gt;&lt;/pre&gt;
 </description>
     </item>
     
