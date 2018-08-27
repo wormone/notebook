@@ -18,10 +18,10 @@
     <title>
       
       
-         向量（直线）与栅格图像的交点（像元）计算 
+         python调用外部程序：subprocess的一个应用实例 
       
     </title>
-    <link rel="canonical" href="https://wormone.github.io/notebook/post/%E5%90%91%E9%87%8F%EF%BC%88%E7%9B%B4%E7%BA%BF%EF%BC%89%E4%B8%8E%E6%A0%85%E6%A0%BC%E5%9B%BE%E5%83%8F%E7%9A%84%E4%BA%A4%E7%82%B9%EF%BC%88%E5%83%8F%E5%85%83%EF%BC%89%E8%AE%A1%E7%AE%97/">
+    <link rel="canonical" href="https://wormone.github.io/notebook/post/python%E8%B0%83%E7%94%A8%E5%A4%96%E9%83%A8%E7%A8%8B%E5%BA%8F%EF%BC%9Asubprocess%E7%9A%84%E4%B8%80%E4%B8%AA%E5%BA%94%E7%94%A8%E5%AE%9E%E4%BE%8B/">
 
     <style>
   * {
@@ -391,115 +391,70 @@
 
 
 <section id=content>
-  <h1> 向量（直线）与栅格图像的交点（像元）计算 </h1>
+  <h1> python调用外部程序：subprocess的一个应用实例 </h1>
 
   <div id=sub-header>
-    February 2018 · 2 minute read
+    August 2018 · 1 minute read
   </div>
 
   <div class="entry-content">
-    <p>这次还是一个卫星项目，问题是这样的：</p>
+    <p>这次我们要解决的问题是这样的：</p>
 
-<p>在一个栅格图像上，有一个点的位置上有一个向量，需要计算的是这个向量所在的直线所经过的像元有哪些。</p>
+<p>有一个算法模块或者模型本身是由其他语言编写并且编译好的二进制可执行程序，
+我们现在需要用 python 调用执行该程序，并且自动获知该程序的执行状态，包括可能输出的错误信息。</p>
 
-<p>问题看上去简单，但似乎实现起来还有点麻烦。</p>
+<p>如果该程序遇到错误可以直接输出错误信息并且退出，这种情况显然还是非常容易处理的，
+我们只需要将其输出的错误信息重定向到一个日志文件中即可，<code>os.system()</code> 足以解决问题：</p>
 
-<p>还好我们有 PIL 可以用，问题就简化成只要找到这条直线的两个<strong>端点</strong>就行了，思路是这样的：</p>
+<pre><code>import os
 
-<ol>
-<li>这两个端点必然在栅格图像最外圈上，只要找到这上面的两个点就行了；</li>
-<li>首先提取最外圈所有像素的坐标，然后计算每个点与给定点之间的向量，计算该向量与所给向量之前<strong>相互平行</strong>的一个度量；</li>
-<li>找到最为相互平行的两个度量所对应的点，那就基本大功告成了。</li>
-</ol>
+if os.name == 'posix':
+    os.system('nohup ./main.exe &gt; log 2&gt;&amp;1 &amp;')
+if os.name == 'nt':
+    os.system('main.exe 1&gt;log 2&gt;&amp;1')
+</code></pre>
 
-<p>最后利用 PIL，把找到的两个点在栅格图像上画出直线，找到直线经过的像素点就完成了。</p>
+<p>这次的情况是，该程序遇到错误时首先输出了一些错误信息提示，说必须手动按下 <code>&lt;Enter&gt;</code> 键才能退出。
+用 <code>os.system()</code> 显然不方便获取错误信息内容去判断是否要额外执行其他操作。
+这时用 <code>subprocess.Popen()</code> 就好了：</p>
 
-<pre><code>#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+<pre><code>import os
+import subprocess
 
-import os
-import numpy as np
-import matplotlib
-import matplotlib.pyplot as plt
-from PIL import Image, ImageDraw
+# 比如应用程序所在路径是 bin_dir
+os.chdir(bin_dir)
 
-
-def vector_across_image(p=(10, 30), u=-1, v=2, size=100, isPlot=False):
-    &quot;&quot;&quot;vector line across a square image
-    
-    A point on the image with a direction like u,v components, make a vector,
-    which across the image, result as a line of pixels
-    
-    Keyword Arguments:
-        p {tuple} -- position of the point on the image (default: {(10, 30)})
-        u {number} -- u component (default: {-1})
-        v {number} -- v component (default: {2})
-        size {number} -- image size (default: {100})
-        isPlot {bool} -- view the result or not (default: {False})
-    
-    Returns:
-        points -- pixels on the line
-    &quot;&quot;&quot;
-    # make a square
-    x, y = np.mgrid[:size, :size]
-    # take the outline of the square
-    outline = zip(x[0, :], y[0, :]) + zip(x[-1, :], y[-1, :]) \
-            + zip(x[:, 0], y[:, 0]) + zip(x[:, -1], y[:, -1])
-    outline = np.array(outline)
-
-    # find the two interception points on the outline, i.e. p0 and p1
-    # delta = [(_[0]-p[0])*v - (_[1]-p[1])*u for _ in outline]
-    delta = (outline[:, 0] - p[0]) * v - (outline[:, 1] -p[1]) * u
-    delta = np.abs(delta)
-    ascding = np.argsort(delta)
-    p0 = outline[ascding[0]]
-    p1 = outline[ascding[1]]
-
-    # get the line using PIL
-    image = Image.new('1', (size, size))
-    draw = ImageDraw.Draw(image)
-    draw.line((p0[0], p0[1], p1[0], p1[1]), fill='white')
-    color = list(image.getdata())
-    color = np.reshape(color, (size, size))
-    px = y[color==255].ravel()  # !!! x--&gt;y
-    py = x[color==255].ravel()  # !!! y--&gt;x
-    points = zip(px, py)
-
-    if isPlot:
-        plt.subplot(211)
-        plt.plot(px, py, 'rs')
-        plt.plot(p[0], p[1], 'ko', ms=20)
-        plt.plot([p0[0], p1[0]], [p0[1], p1[1]], 'b-')
-        plt.axis('scaled')
-        plt.axis([0, size, 0, size])
-        plt.subplot(212)
-        plt.imshow(color)
-        plt.show()
-
-    return points, color
-
-
-def test():
-    points, color = vector_across_image(p=(10, 30), u=-1, v=2, size=100, isPlot=True)
-    # print color
-
-
-if __name__ == '__main__':
-    test()
-    # from timeit import timeit
-    # t = timeit('vector_across_image()', 'from __main__ import vector_across_image', number=140*140)
-    # print(t)
+if os.name == 'posix':
+    p = subprocess.Popen('./main.exe', 
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
+if os.name == 'nt':
+    p = subprocess.Popen('main.exe', 
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
+# 一行一行读取 stdout，因为当进程 p 没有结束时，stdout 没有文件结束符，所以不能被 read()
+stdout = ''
+while p.poll() is None:
+    line = p.stdout.readline()
+    stdout += line
+    if '&lt;Enter&gt;' in line:
+        subprocess.Popen.kill(p)  # 读到提示按 '&lt;Enter&gt;' 键的信息时，结束程序，退出
+        break
+else:
+    stdout = p.stdout.read()
+# print(stdout)
+# 可以写出 stdout 到一个日志文件中
+with open('log', 'w') as f:
+    f.write(stdout)
 
 </code></pre>
+
+<p>好了，就到这里。</p>
 
   </div>
 
   <div id=links>
     
-      <a class="basic-alignment left" href="https://wormone.github.io/notebook/post/%E4%B8%AD%E5%9C%86%E7%82%B9%E7%AE%97%E6%B3%95%EF%BC%88Midpoint%20circle%20algorithm%EF%BC%89%E7%9A%84%E7%AE%80%E5%8D%95%E5%AE%9E%E7%8E%B0/">&laquo; 中圆点算法（Midpoint circle algorithm）的简单实现</a>
+      <a class="basic-alignment left" href="https://wormone.github.io/notebook/post/%E5%90%91%E9%87%8F%EF%BC%88%E7%9B%B4%E7%BA%BF%EF%BC%89%E4%B8%8E%E6%A0%85%E6%A0%BC%E5%9B%BE%E5%83%8F%E7%9A%84%E4%BA%A4%E7%82%B9%EF%BC%88%E5%83%8F%E5%85%83%EF%BC%89%E8%AE%A1%E7%AE%97/">&laquo; 向量（直线）与栅格图像的交点（像元）计算</a>
     
-    
-      <a class="basic-alignment left" href="https://wormone.github.io/notebook/post/python%E8%B0%83%E7%94%A8%E5%A4%96%E9%83%A8%E7%A8%8B%E5%BA%8F%EF%BC%9Asubprocess%E7%9A%84%E4%B8%80%E4%B8%AA%E5%BA%94%E7%94%A8%E5%AE%9E%E4%BE%8B/">python调用外部程序：subprocess的一个应用实例 &raquo;</a>
     
   </div>
 </section>

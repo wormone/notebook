@@ -6,8 +6,67 @@
     <description>Recent content on A notebook on data analysis in python</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Tue, 27 Feb 2018 22:35:15 +0800</lastBuildDate>
+    <lastBuildDate>Mon, 27 Aug 2018 09:00:15 +0800</lastBuildDate>
     <atom:link href="https://wormone.github.io/notebook/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>python调用外部程序：subprocess的一个应用实例</title>
+      <link>https://wormone.github.io/notebook/post/python%E8%B0%83%E7%94%A8%E5%A4%96%E9%83%A8%E7%A8%8B%E5%BA%8F%EF%BC%9Asubprocess%E7%9A%84%E4%B8%80%E4%B8%AA%E5%BA%94%E7%94%A8%E5%AE%9E%E4%BE%8B/</link>
+      <pubDate>Mon, 27 Aug 2018 09:00:15 +0800</pubDate>
+      
+      <guid>https://wormone.github.io/notebook/post/python%E8%B0%83%E7%94%A8%E5%A4%96%E9%83%A8%E7%A8%8B%E5%BA%8F%EF%BC%9Asubprocess%E7%9A%84%E4%B8%80%E4%B8%AA%E5%BA%94%E7%94%A8%E5%AE%9E%E4%BE%8B/</guid>
+      <description>&lt;p&gt;这次我们要解决的问题是这样的：&lt;/p&gt;
+
+&lt;p&gt;有一个算法模块或者模型本身是由其他语言编写并且编译好的二进制可执行程序，
+我们现在需要用 python 调用执行该程序，并且自动获知该程序的执行状态，包括可能输出的错误信息。&lt;/p&gt;
+
+&lt;p&gt;如果该程序遇到错误可以直接输出错误信息并且退出，这种情况显然还是非常容易处理的，
+我们只需要将其输出的错误信息重定向到一个日志文件中即可，&lt;code&gt;os.system()&lt;/code&gt; 足以解决问题：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;import os
+
+if os.name == &#39;posix&#39;:
+    os.system(&#39;nohup ./main.exe &amp;gt; log 2&amp;gt;&amp;amp;1 &amp;amp;&#39;)
+if os.name == &#39;nt&#39;:
+    os.system(&#39;main.exe 1&amp;gt;log 2&amp;gt;&amp;amp;1&#39;)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;这次的情况是，该程序遇到错误时首先输出了一些错误信息提示，说必须手动按下 &lt;code&gt;&amp;lt;Enter&amp;gt;&lt;/code&gt; 键才能退出。
+用 &lt;code&gt;os.system()&lt;/code&gt; 显然不方便获取错误信息内容去判断是否要额外执行其他操作。
+这时用 &lt;code&gt;subprocess.Popen()&lt;/code&gt; 就好了：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;import os
+import subprocess
+
+# 比如应用程序所在路径是 bin_dir
+os.chdir(bin_dir)
+
+if os.name == &#39;posix&#39;:
+    p = subprocess.Popen(&#39;./main.exe&#39;, 
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
+if os.name == &#39;nt&#39;:
+    p = subprocess.Popen(&#39;main.exe&#39;, 
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
+# 一行一行读取 stdout，因为当进程 p 没有结束时，stdout 没有文件结束符，所以不能被 read()
+stdout = &#39;&#39;
+while p.poll() is None:
+    line = p.stdout.readline()
+    stdout += line
+    if &#39;&amp;lt;Enter&amp;gt;&#39; in line:
+        subprocess.Popen.kill(p)  # 读到提示按 &#39;&amp;lt;Enter&amp;gt;&#39; 键的信息时，结束程序，退出
+        break
+else:
+    stdout = p.stdout.read()
+# print(stdout)
+# 可以写出 stdout 到一个日志文件中
+with open(&#39;log&#39;, &#39;w&#39;) as f:
+    f.write(stdout)
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;好了，就到这里。&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>向量（直线）与栅格图像的交点（像元）计算</title>
@@ -891,24 +950,6 @@ if __name__ == &#39;__main__&#39;:
 - logging：日志记录
 - pyWRF：WRF管理
 &lt;/code&gt;&lt;/pre&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>基于leaflet.js的气象数据可视化方案</title>
-      <link>https://wormone.github.io/notebook/post/%E5%9F%BA%E4%BA%8Eleaflet.js%E7%9A%84%E6%B0%94%E8%B1%A1%E6%95%B0%E6%8D%AE%E5%8F%AF%E8%A7%86%E5%8C%96%E6%96%B9%E6%A1%88/</link>
-      <pubDate>Sun, 13 Nov 2016 19:21:15 +0800</pubDate>
-      
-      <guid>https://wormone.github.io/notebook/post/%E5%9F%BA%E4%BA%8Eleaflet.js%E7%9A%84%E6%B0%94%E8%B1%A1%E6%95%B0%E6%8D%AE%E5%8F%AF%E8%A7%86%E5%8C%96%E6%96%B9%E6%A1%88/</guid>
-      <description>&lt;p&gt;气象数据是多维度的数据，包括时间、空间、要素名等。空间属性是气象数据的基本属性。&lt;/p&gt;
-
-&lt;p&gt;气象数据的可视化离不开空间分布的展示。单点数据以地理坐标为基础，通常在地图上以数据、符号、颜色等标识。例如风向通常以风杆或者带有方向箭头的小图标标识。网格化数据通常以等值线（contour）、填充色（contourf）或色块（imagesc，pcolor）标识。&lt;/p&gt;
-
-&lt;p&gt;上述两类数据均可以用&lt;strong&gt;geojson&lt;/strong&gt;的格式组织起来交由&lt;strong&gt;leaflet.js&lt;/strong&gt;在页面上展示。&lt;/p&gt;
-
-&lt;p&gt;单点的数据很简单。网格化数据是以等值线分析为基础的，这个工作可以交由我们熟悉的&lt;strong&gt;matplotlib&lt;/strong&gt;来完成，其输出结果再由&lt;strong&gt;geojsoncontour&lt;/strong&gt;这个第三方软件包转换为geojson格式即可（该软件包在github上可以找到，其中的一个小bug已被我们修复）。&lt;/p&gt;
-
-&lt;p&gt;leaflet.js提供了丰富的方法用户展示基于GIS的信息，并提供了很多交互操作的功能，官方文档都有很好的示例。&lt;/p&gt;
 </description>
     </item>
     
