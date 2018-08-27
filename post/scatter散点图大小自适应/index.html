@@ -18,10 +18,10 @@
     <title>
       
       
-         python调用外部程序：subprocess的一个应用实例 
+         scatter散点图大小自适应 
       
     </title>
-    <link rel="canonical" href="https://wormone.github.io/notebook/post/python%E8%B0%83%E7%94%A8%E5%A4%96%E9%83%A8%E7%A8%8B%E5%BA%8F%EF%BC%9Asubprocess%E7%9A%84%E4%B8%80%E4%B8%AA%E5%BA%94%E7%94%A8%E5%AE%9E%E4%BE%8B/">
+    <link rel="canonical" href="https://wormone.github.io/notebook/post/scatter%E6%95%A3%E7%82%B9%E5%9B%BE%E5%A4%A7%E5%B0%8F%E8%87%AA%E9%80%82%E5%BA%94/">
 
     <style>
   * {
@@ -391,72 +391,62 @@
 
 
 <section id=content>
-  <h1> python调用外部程序：subprocess的一个应用实例 </h1>
+  <h1> scatter散点图大小自适应 </h1>
 
   <div id=sub-header>
     August 2018 · 1 minute read
   </div>
 
   <div class="entry-content">
-    <p>这次我们要解决的问题是这样的：</p>
+    <p>我们知道，scatter 散点图的基本绘图参数包括几个方面：</p>
 
-<p>有一个算法模块或者模型本身是由其他语言编写并且编译好的二进制可执行程序，
-我们现在需要用 python 调用执行该程序，并且自动获知该程序的执行状态，包括可能输出的错误信息。</p>
+<ol>
+<li>点的位置坐标 x 和 y</li>
+<li>点的颜色 c</li>
+<li>点的大小 s</li>
+</ol>
 
-<p>如果该程序遇到错误可以直接输出错误信息并且退出，这种情况显然还是非常容易处理的，
-我们只需要将其输出的错误信息重定向到一个日志文件中即可，<code>os.system()</code> 足以解决问题：</p>
+<p>至于点的标记样式，以及标记外边线宽度、颜色和整体透明度、colorbar 等等，这些就不讨论了，按照自己的需要设置即可。</p>
 
-<pre><code>import os
+<p>今天我们主要关注一下 marker 大小的设置问题。来看一个例子：</p>
 
-if os.name == 'posix':
-    os.system('nohup ./main.exe &gt; log 2&gt;&amp;1 &amp;')
-if os.name == 'nt':
-    os.system('main.exe 1&gt;log 2&gt;&amp;1')
+<pre><code>import numpy as np
+import matplotlib.pyplot as plot
+
+
+x, y, z = [np.random.randint(-1000, 1000, (10, 10)) for _ in range(3)]
+
+plt.scatter(x, y, c=z, s=np.abs(z))
+cbar = plt.colorbar()
+plt.axist('scaled')
+plt.show()
 </code></pre>
 
-<p>这次的情况是，该程序遇到错误时首先输出了一些错误信息提示，说必须手动按下 <code>&lt;Enter&gt;</code> 键才能退出。
-用 <code>os.system()</code> 显然不方便获取错误信息内容去判断是否要额外执行其他操作。
-这时用 <code>subprocess.Popen()</code> 就好了：</p>
+<p><img src="scatter_plot_0.png" alt="scatter_plot_0.png" title="scatter_plot_0.png" /></p>
 
-<pre><code>import os
-import subprocess
+<p>大小 s 必须为正，不能为负，因此这里用的是 <code>s=np.abs(z)</code>。图本质上没有问题，只是点的大小看上去不太合适。
+我们来修正一下：</p>
 
-# 比如应用程序所在路径是 bin_dir
-os.chdir(bin_dir)
-
-if os.name == 'posix':
-    p = subprocess.Popen('./main.exe', 
-        stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
-if os.name == 'nt':
-    p = subprocess.Popen('main.exe', 
-        stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
-# 一行一行读取 stdout，因为当进程 p 没有结束时，stdout 没有文件结束符，所以不能被 read()
-stdout = ''
-while p.poll() is None:
-    line = p.stdout.readline()
-    stdout += line
-    if '&lt;Enter&gt;' in line:
-        subprocess.Popen.kill(p)  # 读到提示按 '&lt;Enter&gt;' 键的信息时，结束程序，退出
-        break
-else:
-    stdout = p.stdout.read()
-# print(stdout)
-# 可以写出 stdout 到一个日志文件中
-with open('log', 'w') as f:
-    f.write(stdout)
-
+<pre><code>s = 15 * (np.abs(z) / np.mean(np.abs(z)))**2
+plt.scatter(x, y, c=z, s=s)
+cbar = plt.colorbar()
+plt.axist('scaled')
+plt.show()
 </code></pre>
 
-<p>好了，就到这里。</p>
+<p><img src="scatter_plot_1.png" alt="scatter_plot_1.png" title="scatter_plot_1.png" /></p>
+
+<p>上述的处理其实只是用 z 的绝对值与 z 绝对值均值的比值的平方对基准大小（这里是 15）做了调节。
+注意，再控制 marker 大小时，绝对值是必须的，这样几乎完全可以避免均值为 0 情况的出现（除非 z 本身全部为 0）。</p>
+
+<p>matplotlib 官网上的例子非常丰富，绝大多数情况查查例子自己试验一下就好了。</p>
 
   </div>
 
   <div id=links>
     
-      <a class="basic-alignment left" href="https://wormone.github.io/notebook/post/%E5%90%91%E9%87%8F%EF%BC%88%E7%9B%B4%E7%BA%BF%EF%BC%89%E4%B8%8E%E6%A0%85%E6%A0%BC%E5%9B%BE%E5%83%8F%E7%9A%84%E4%BA%A4%E7%82%B9%EF%BC%88%E5%83%8F%E5%85%83%EF%BC%89%E8%AE%A1%E7%AE%97/">&laquo; 向量（直线）与栅格图像的交点（像元）计算</a>
+      <a class="basic-alignment left" href="https://wormone.github.io/notebook/post/python%E8%B0%83%E7%94%A8%E5%A4%96%E9%83%A8%E7%A8%8B%E5%BA%8F%EF%BC%9Asubprocess%E7%9A%84%E4%B8%80%E4%B8%AA%E5%BA%94%E7%94%A8%E5%AE%9E%E4%BE%8B/">&laquo; python调用外部程序：subprocess的一个应用实例</a>
     
-    
-      <a class="basic-alignment left" href="https://wormone.github.io/notebook/post/scatter%E6%95%A3%E7%82%B9%E5%9B%BE%E5%A4%A7%E5%B0%8F%E8%87%AA%E9%80%82%E5%BA%94/">scatter散点图大小自适应 &raquo;</a>
     
   </div>
 </section>

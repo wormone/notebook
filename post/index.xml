@@ -6,8 +6,59 @@
     <description>Recent content in Posts on A notebook on data analysis in python</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Mon, 27 Aug 2018 09:00:15 +0800</lastBuildDate>
+    <lastBuildDate>Mon, 27 Aug 2018 10:21:15 +0800</lastBuildDate>
     <atom:link href="https://wormone.github.io/notebook/post/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>scatter散点图大小自适应</title>
+      <link>https://wormone.github.io/notebook/post/scatter%E6%95%A3%E7%82%B9%E5%9B%BE%E5%A4%A7%E5%B0%8F%E8%87%AA%E9%80%82%E5%BA%94/</link>
+      <pubDate>Mon, 27 Aug 2018 10:21:15 +0800</pubDate>
+      
+      <guid>https://wormone.github.io/notebook/post/scatter%E6%95%A3%E7%82%B9%E5%9B%BE%E5%A4%A7%E5%B0%8F%E8%87%AA%E9%80%82%E5%BA%94/</guid>
+      <description>&lt;p&gt;我们知道，scatter 散点图的基本绘图参数包括几个方面：&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;点的位置坐标 x 和 y&lt;/li&gt;
+&lt;li&gt;点的颜色 c&lt;/li&gt;
+&lt;li&gt;点的大小 s&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;至于点的标记样式，以及标记外边线宽度、颜色和整体透明度、colorbar 等等，这些就不讨论了，按照自己的需要设置即可。&lt;/p&gt;
+
+&lt;p&gt;今天我们主要关注一下 marker 大小的设置问题。来看一个例子：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;import numpy as np
+import matplotlib.pyplot as plot
+
+
+x, y, z = [np.random.randint(-1000, 1000, (10, 10)) for _ in range(3)]
+
+plt.scatter(x, y, c=z, s=np.abs(z))
+cbar = plt.colorbar()
+plt.axist(&#39;scaled&#39;)
+plt.show()
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;img src=&#34;scatter_plot_0.png&#34; alt=&#34;scatter_plot_0.png&#34; title=&#34;scatter_plot_0.png&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;大小 s 必须为正，不能为负，因此这里用的是 &lt;code&gt;s=np.abs(z)&lt;/code&gt;。图本质上没有问题，只是点的大小看上去不太合适。
+我们来修正一下：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;s = 15 * (np.abs(z) / np.mean(np.abs(z)))**2
+plt.scatter(x, y, c=z, s=s)
+cbar = plt.colorbar()
+plt.axist(&#39;scaled&#39;)
+plt.show()
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;img src=&#34;scatter_plot_1.png&#34; alt=&#34;scatter_plot_1.png&#34; title=&#34;scatter_plot_1.png&#34; /&gt;&lt;/p&gt;
+
+&lt;p&gt;上述的处理其实只是用 z 的绝对值与 z 绝对值均值的比值的平方对基准大小（这里是 15）做了调节。
+注意，再控制 marker 大小时，绝对值是必须的，这样几乎完全可以避免均值为 0 情况的出现（除非 z 本身全部为 0）。&lt;/p&gt;
+
+&lt;p&gt;matplotlib 官网上的例子非常丰富，绝大多数情况查查例子自己试验一下就好了。&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>python调用外部程序：subprocess的一个应用实例</title>
@@ -902,54 +953,6 @@ if __name__ == &#39;__main__&#39;:
 &lt;li&gt;如果有区分用户权限的功能需求，应在查询方法之前增加一个权限管理模块。&lt;/li&gt;
 &lt;li&gt;如果有提高服务的性能的需求，应相应的从硬件配置、缓方式、多任务并行等方面解决。&lt;/li&gt;
 &lt;/ol&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>气象数据处理和绘图常用的python软件包</title>
-      <link>https://wormone.github.io/notebook/post/%E6%B0%94%E8%B1%A1%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86%E5%92%8C%E7%BB%98%E5%9B%BE%E5%B8%B8%E7%94%A8%E7%9A%84python%E8%BD%AF%E4%BB%B6%E5%8C%85/</link>
-      <pubDate>Fri, 13 Jan 2017 19:21:15 +0800</pubDate>
-      
-      <guid>https://wormone.github.io/notebook/post/%E6%B0%94%E8%B1%A1%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86%E5%92%8C%E7%BB%98%E5%9B%BE%E5%B8%B8%E7%94%A8%E7%9A%84python%E8%BD%AF%E4%BB%B6%E5%8C%85/</guid>
-      <description>
-
-&lt;h3 id=&#34;1-基本问题&#34;&gt;1. 基本问题&lt;/h3&gt;
-
-&lt;pre&gt;&lt;code&gt;- datetime, canlendar：时间和日期处理
-- re：正则处理
-- glob：文件名匹配
-- os, shutil：系统路径等操作
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;2-特定格式&#34;&gt;2. 特定格式&lt;/h3&gt;
-
-&lt;pre&gt;&lt;code&gt;- netCDF4：netCDF数据读写
-- pygrib：grib数据读写
-- struct：二进制数据读写
-- gdal：geotiff等数据读写
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;3-计算分析&#34;&gt;3. 计算分析&lt;/h3&gt;
-
-&lt;pre&gt;&lt;code&gt;- numpy, scipy：科学计算
-- pandas：数据结构框架
-- scikit-learn：统计学和机器学习模型
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;4-绘图&#34;&gt;4. 绘图&lt;/h3&gt;
-
-&lt;pre&gt;&lt;code&gt;- matplotlib, basemap：几乎所有类别的气象图形
-- seaborn：更美观一些的图形
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;5-业务自动化&#34;&gt;5. 业务自动化&lt;/h3&gt;
-
-&lt;pre&gt;&lt;code&gt;- apscheduler：定时任务管理
-- multiprocessing：多进程并行计算
-- celery：分布式并行框架
-- logging：日志记录
-- pyWRF：WRF管理
-&lt;/code&gt;&lt;/pre&gt;
 </description>
     </item>
     
