@@ -18,10 +18,10 @@
     <title>
       
       
-         scatter散点图大小自适应 
+         tornado日志默认格式变更恢复 
       
     </title>
-    <link rel="canonical" href="https://wormone.github.io/notebook/post/scatter%E6%95%A3%E7%82%B9%E5%9B%BE%E5%A4%A7%E5%B0%8F%E8%87%AA%E9%80%82%E5%BA%94/">
+    <link rel="canonical" href="https://wormone.github.io/notebook/post/tornado%E6%97%A5%E5%BF%97%E9%BB%98%E8%AE%A4%E6%A0%BC%E5%BC%8F%E5%8F%98%E6%9B%B4%E6%81%A2%E5%A4%8D/">
 
     <style>
   * {
@@ -391,64 +391,53 @@
 
 
 <section id=content>
-  <h1> scatter散点图大小自适应 </h1>
+  <h1> tornado日志默认格式变更恢复 </h1>
 
   <div id=sub-header>
     August 2018 · 1 minute read
   </div>
 
   <div class="entry-content">
-    <p>我们知道，scatter 散点图的基本绘图参数包括几个方面：</p>
+    <p>我们知道，tornado 日志默认格式是类似这样的：</p>
 
-<ol>
-<li>点的位置坐标 x 和 y</li>
-<li>点的颜色 c</li>
-<li>点的大小 s</li>
-</ol>
-
-<p>至于点的标记样式，以及标记外边线宽度、颜色和整体透明度、colorbar 等等，这些就不讨论了，按照自己的需要设置即可。</p>
-
-<p>今天我们主要关注一下 marker 大小的设置问题。来看一个例子：</p>
-
-<pre><code>import numpy as np
-import matplotlib.pyplot as plot
-
-
-x, y, z = [np.random.randint(-1000, 1000, (10, 10)) for _ in range(3)]
-
-plt.scatter(x, y, c=z, s=np.abs(z))
-cbar = plt.colorbar()
-plt.axist('scaled')
-plt.show()
+<pre><code>[I 180811 19:43:13 web:2106] 200 GET / (127.0.0.1) 4.25ms
+[W 180811 19:43:14 web:2106] 404 GET /favicon.ico (127.0.0.1) 2.01ms
 </code></pre>
 
-<p><img src="scatter_plot_0.png" alt="scatter_plot_0.png" title="scatter_plot_0.png" /></p>
+<p><code>[级别 Infor/Waring/Error） 时间 模块:行数] 状态码 方法 路由 耗时</code>，记录既简短又实用，非常好。</p>
 
-<p>大小 s 必须为正，不能为负，因此这里用的是 <code>s=np.abs(z)</code>。图本质上没有问题，只是点的大小看上去不太合适。
-我们来修正一下：</p>
+<p>但是有一天我发现自己的 tornado 日志格式 <strong>突变</strong> 了：</p>
 
-<pre><code>s = 15 * (np.abs(z) / np.mean(np.abs(z)))**2
-plt.scatter(x, y, c=z, s=s)
-cbar = plt.colorbar()
-plt.axist('scaled')
-plt.show()
+<pre><code>INFO:tornado.access:200 GET / (127.0.0.1) 7.65ms
+INFO:tornado.access:200 GET /static/images/favicon.ico (127.0.0.1) 1.42ms
 </code></pre>
 
-<p><img src="scatter_plot_1.png" alt="scatter_plot_1.png" title="scatter_plot_1.png" /></p>
+<p>这是怎么回事呢？关键是时间没了，这个不好！
+猜测是自己新引入的什么模块本身引入了 logging 模块并且有所设置，
+从而改变了 tornado 本身对于 logging 的全局设置。</p>
 
-<p>上述的处理其实只是用 z 的绝对值与 z 绝对值均值的比值的平方对基准大小（这里是 15）做了调节。
-注意，再控制 marker 大小时，绝对值是必须的，这样几乎完全可以避免均值为 0 情况的出现（除非 z 本身全部为 0）。</p>
+<p>logging 这个模块比较 <strong>特殊</strong>，即便在被引用的模块中，也会改变主程序中的 logging 设置！</p>
 
-<p>matplotlib 官网上的例子非常丰富，绝大多数情况查查例子自己试验一下就好了。</p>
+<p>首先找到嫌疑的模块有哪些，然后逐一试验一下是否引入，查看 tornado 日志格式。
+最终发现模块 <code>metpy.gridding</code> 引入并设置了 logging。</p>
+
+<p>为了恢复 tornado 日志的默认格式，需要在 tornado 主程序开头所有 <code>import</code> 语句之后增加如下语句：</p>
+
+<pre><code>import logging
+from tornado.log import LogFormatter
+root_logger = logging.getLogger()
+root_streamhandler = root_logger.handlers[0]
+root_streamhandler.setFormatter(LogFormatter())
+</code></pre>
+
+<p>好了，这样就可以了，<code>LogFormatter()</code> 是 tornado 默认的日志格式。</p>
 
   </div>
 
   <div id=links>
     
-      <a class="basic-alignment left" href="https://wormone.github.io/notebook/post/python%E8%B0%83%E7%94%A8%E5%A4%96%E9%83%A8%E7%A8%8B%E5%BA%8F%EF%BC%9Asubprocess%E7%9A%84%E4%B8%80%E4%B8%AA%E5%BA%94%E7%94%A8%E5%AE%9E%E4%BE%8B/">&laquo; python调用外部程序：subprocess的一个应用实例</a>
+      <a class="basic-alignment left" href="https://wormone.github.io/notebook/post/scatter%E6%95%A3%E7%82%B9%E5%9B%BE%E5%A4%A7%E5%B0%8F%E8%87%AA%E9%80%82%E5%BA%94/">&laquo; scatter散点图大小自适应</a>
     
-    
-      <a class="basic-alignment left" href="https://wormone.github.io/notebook/post/tornado%E6%97%A5%E5%BF%97%E9%BB%98%E8%AE%A4%E6%A0%BC%E5%BC%8F%E5%8F%98%E6%9B%B4%E6%81%A2%E5%A4%8D/">tornado日志默认格式变更恢复 &raquo;</a>
     
   </div>
 </section>

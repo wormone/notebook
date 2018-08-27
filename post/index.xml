@@ -6,8 +6,50 @@
     <description>Recent content in Posts on A notebook on data analysis in python</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Mon, 27 Aug 2018 10:21:15 +0800</lastBuildDate>
+    <lastBuildDate>Mon, 27 Aug 2018 12:18:15 +0800</lastBuildDate>
     <atom:link href="https://wormone.github.io/notebook/post/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>tornado日志默认格式变更恢复</title>
+      <link>https://wormone.github.io/notebook/post/tornado%E6%97%A5%E5%BF%97%E9%BB%98%E8%AE%A4%E6%A0%BC%E5%BC%8F%E5%8F%98%E6%9B%B4%E6%81%A2%E5%A4%8D/</link>
+      <pubDate>Mon, 27 Aug 2018 12:18:15 +0800</pubDate>
+      
+      <guid>https://wormone.github.io/notebook/post/tornado%E6%97%A5%E5%BF%97%E9%BB%98%E8%AE%A4%E6%A0%BC%E5%BC%8F%E5%8F%98%E6%9B%B4%E6%81%A2%E5%A4%8D/</guid>
+      <description>&lt;p&gt;我们知道，tornado 日志默认格式是类似这样的：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;[I 180811 19:43:13 web:2106] 200 GET / (127.0.0.1) 4.25ms
+[W 180811 19:43:14 web:2106] 404 GET /favicon.ico (127.0.0.1) 2.01ms
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;code&gt;[级别 Infor/Waring/Error） 时间 模块:行数] 状态码 方法 路由 耗时&lt;/code&gt;，记录既简短又实用，非常好。&lt;/p&gt;
+
+&lt;p&gt;但是有一天我发现自己的 tornado 日志格式 &lt;strong&gt;突变&lt;/strong&gt; 了：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;INFO:tornado.access:200 GET / (127.0.0.1) 7.65ms
+INFO:tornado.access:200 GET /static/images/favicon.ico (127.0.0.1) 1.42ms
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;这是怎么回事呢？关键是时间没了，这个不好！
+猜测是自己新引入的什么模块本身引入了 logging 模块并且有所设置，
+从而改变了 tornado 本身对于 logging 的全局设置。&lt;/p&gt;
+
+&lt;p&gt;logging 这个模块比较 &lt;strong&gt;特殊&lt;/strong&gt;，即便在被引用的模块中，也会改变主程序中的 logging 设置！&lt;/p&gt;
+
+&lt;p&gt;首先找到嫌疑的模块有哪些，然后逐一试验一下是否引入，查看 tornado 日志格式。
+最终发现模块 &lt;code&gt;metpy.gridding&lt;/code&gt; 引入并设置了 logging。&lt;/p&gt;
+
+&lt;p&gt;为了恢复 tornado 日志的默认格式，需要在 tornado 主程序开头所有 &lt;code&gt;import&lt;/code&gt; 语句之后增加如下语句：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;import logging
+from tornado.log import LogFormatter
+root_logger = logging.getLogger()
+root_streamhandler = root_logger.handlers[0]
+root_streamhandler.setFormatter(LogFormatter())
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;好了，这样就可以了，&lt;code&gt;LogFormatter()&lt;/code&gt; 是 tornado 默认的日志格式。&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>scatter散点图大小自适应</title>
@@ -919,40 +961,6 @@ if __name__ == &#39;__main__&#39;:
     test_KMeans_using_custom_distance()
 
 &lt;/code&gt;&lt;/pre&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>气象数据查询接口设计的简要方案</title>
-      <link>https://wormone.github.io/notebook/post/%E6%B0%94%E8%B1%A1%E6%95%B0%E6%8D%AE%E6%9F%A5%E8%AF%A2%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1%E7%9A%84%E7%AE%80%E8%A6%81%E6%96%B9%E6%A1%88/</link>
-      <pubDate>Thu, 13 Apr 2017 19:21:15 +0800</pubDate>
-      
-      <guid>https://wormone.github.io/notebook/post/%E6%B0%94%E8%B1%A1%E6%95%B0%E6%8D%AE%E6%9F%A5%E8%AF%A2%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1%E7%9A%84%E7%AE%80%E8%A6%81%E6%96%B9%E6%A1%88/</guid>
-      <description>&lt;p&gt;这里我们指的是存储在数据库里的&lt;strong&gt;站点气象数据&lt;/strong&gt;，存储在文件中的格点数据是另一回事了。&lt;/p&gt;
-
-&lt;p&gt;气象数据的特点是包括时间、地点、层次、要素等&lt;strong&gt;多个维度&lt;/strong&gt;，通常以特定文本格式存储的数据不便于数据的提取和查询，尤其当这种提取和查询经常发生的时候。因此，导入关系型数据库，然后编写查询方法，对用户提供查询服务就是非常必要的了。&lt;/p&gt;
-
-&lt;p&gt;通常，数据源的格式是固定的，而且随着时间的延伸，数据会不断更新，那么编写一套数据读取和写入数据库的程序就会方便后续的数据更新工作了。&lt;/p&gt;
-
-&lt;p&gt;python操作数据库有&lt;strong&gt;两种方式&lt;/strong&gt;，一种是不同数据库采用不同的软件包（如对于MS SQL可以使用pymssql，对于MySQL可以使用pymysql，对于sqlite可以使用sqlite3），一种是基于对象-关系映射模型（ORM）的软件包（如SQLAlchemy）。两种方式都是比较容易的，官方文档都有很好的示例，参照按部就班写就可以了。使用SQLAlchemy的好处是可以更容易的切换不同数据库。&lt;/p&gt;
-
-&lt;p&gt;数据库表的设计应当看数据的具体情况，具体分析，没有太多可说的。当写入和读取数据库数据的方法写好之后，就是后续的调用和封装工作了。读取的方法有哪些，取决于查询的需求有哪些，一一对应就可以了。通常，查询都包括时间范围、空间范围、要素名称、统计方式（如平均值、累计值、最大最小值）等方面。&lt;/p&gt;
-
-&lt;p&gt;接下来就是对外提供数据查询服务了，可能直接被用户调用，也可能被其它外部程序调用。数据查询接口一般只涉及到数据的读取，很少涉及到数据的写入，因此来说功能比较单一，实现起来也比较容易。对于上述写好的读取方法，只需要利用HTTP服务封装一下就可以了。我们采用&lt;strong&gt;Flask&lt;/strong&gt;或&lt;strong&gt;Tornado&lt;/strong&gt;框架就可以很轻松完成任务了，其中需要注意的基本问题包括：&lt;/p&gt;
-
-&lt;ol&gt;
-&lt;li&gt;url的设计应符合约定俗成的规范，清晰明了。&lt;/li&gt;
-&lt;li&gt;只编写和允许必要的请求方法，禁止不必要的请求。&lt;/li&gt;
-&lt;li&gt;接口说明文档应编写好并放在一个类似/api/help的url里以便用户查阅。&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;进一步，可能遇到的问题包括：&lt;/p&gt;
-
-&lt;ol&gt;
-&lt;li&gt;如果有查询不同结果格式的需求，应在查询结果之后增加一个统一的格式处理方法。&lt;/li&gt;
-&lt;li&gt;如果有区分用户权限的功能需求，应在查询方法之前增加一个权限管理模块。&lt;/li&gt;
-&lt;li&gt;如果有提高服务的性能的需求，应相应的从硬件配置、缓方式、多任务并行等方面解决。&lt;/li&gt;
-&lt;/ol&gt;
 </description>
     </item>
     
