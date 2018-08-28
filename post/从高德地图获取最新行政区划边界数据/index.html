@@ -18,10 +18,10 @@
     <title>
       
       
-         tornado日志默认格式变更恢复 
+         从高德地图获取最新行政区划边界数据 
       
     </title>
-    <link rel="canonical" href="https://wormone.github.io/notebook/post/tornado%E6%97%A5%E5%BF%97%E9%BB%98%E8%AE%A4%E6%A0%BC%E5%BC%8F%E5%8F%98%E6%9B%B4%E6%81%A2%E5%A4%8D/">
+    <link rel="canonical" href="https://wormone.github.io/notebook/post/%E4%BB%8E%E9%AB%98%E5%BE%B7%E5%9C%B0%E5%9B%BE%E8%8E%B7%E5%8F%96%E6%9C%80%E6%96%B0%E8%A1%8C%E6%94%BF%E5%8C%BA%E5%88%92%E8%BE%B9%E7%95%8C%E6%95%B0%E6%8D%AE/">
 
     <style>
   * {
@@ -391,55 +391,109 @@
 
 
 <section id=content>
-  <h1> tornado日志默认格式变更恢复 </h1>
+  <h1> 从高德地图获取最新行政区划边界数据 </h1>
 
   <div id=sub-header>
-    August 2018 · 1 minute read
+    August 2018 · 2 minute read
   </div>
 
   <div class="entry-content">
-    <p>我们知道，tornado 日志默认格式是类似这样的：</p>
+    <p>行政区划边界数据在很多地方都会用到。然而，国内公开的数据一般跟不上最新的变更，国外公开的数据因为问题很多（国界线、南海、台湾等等）所以最好别用。</p>
 
-<pre><code>[I 180811 19:43:13 web:2106] 200 GET / (127.0.0.1) 4.25ms
-[W 180811 19:43:14 web:2106] 404 GET /favicon.ico (127.0.0.1) 2.01ms
+<p>另外，一般人可能没有注意到，很多软件自带的中国国界数据也是有问题的，最好别用，即便仅仅是作为 GIS 底图。</p>
+
+<p>不少文献中的底图，中国的行政边界都有问题。</p>
+
+<p>有没有办法获取 <strong>正确</strong> 且 <strong>精细</strong> 且 <strong>更新及时</strong> 的行政区划边界数据呢？几经搜寻，发现高德地图满足要求。</p>
+
+<p>现在我们需要从高德的 API 里面查出 country、province、city、district，也就是国、省、市、区县四个级别的行政区划边界。
+当然，还有乡镇一级的行政区划边界，有需要的可以参照以下的方法自行处理。</p>
+
+<p><img src="amap_CN.png" alt="amap_CN.png" title="amap_CN.png" /></p>
+
+<p>用浏览器在找到的连接处点击鼠标右键，在弹出的菜单中找到 Copy 下的 Copy as cURL(bash)，然后粘贴进 shell 命令行回车，我们就看到了原始数据的样子：
+返回的是 jsonp，里面包含了一段 json 数据，看到 <code>level: &quot;country&quot;, name: &quot;中华人民共和国&quot;, polyline: &quot;120.823872,40.530257;...&quot;</code>，
+显然，<code>polyline</code> 就是边界数据，再仔细看，<code>;</code> 分隔的是经纬度点，<code>|</code> 分割的是不同的多边形。</p>
+
+<p>找到了？是的，我们找到了行政区划边界数据的 API，下面就好办了。</p>
+
+<p>从国家到区县，很多行政边界并不仅仅是一个多边形，而是由多个多边形组成的，这一点要特别注意。</p>
+
+<p>接下来我们可以编写一段程序，自动查询任意行政边界，并利用 <code>pyshp</code> 转换成 shp 格式保存到本地：</p>
+
+<pre><code>#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import os
+import re
+import json
+import requests
+import shapefile
+from xpinyin import Pinyin  # 便于转换中文名称为拼音
+
+
+BASE_URL = u'http://restapi.amap.com/v3/config/district?subdistrict=1&amp;extensions=all&amp;level=district&amp;key=608d75903d29ad471362f8c58c550daf&amp;s=rsv3&amp;output=json&amp;keywords={name}&amp;callback=jsonp_923427_&amp;platform=JS&amp;logversion=2.0&amp;sdkversion=1.3&amp;appname=http%3A%2F%2Flbs.amap.com%2Fapi%2Fjavascript-api%2Fexample%2Fdistrict-search%2Fdraw-district-boundaries%2F&amp;csid=7EB50235-A6C0-45C3-B08C-2F77FE1837AC'  # .format(name=&quot;中国&quot;)
+
+HEADERS = {
+    'Accept-Encoding': 'gzip, deflate, sdch',
+    'Accept-Language': 'zh-CN,zh;q=0.8',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
+    'Accept': '*/*',
+    'Referer': 'http://lbs.amap.com/api/javascript-api/example/district-search/draw-district-boundaries/',
+    'Cookie': 'guid=70c9-87fe-5807-3f17; cna=YKn+D5QKFQ0CAd3vO4CwxB9s; l=Ara234AMAU3gNSreb6UFtrzXhua4gPoX; isg=AqmphLSq2mevHubTbJlaWcpIuFVMnZ2o89H-lkuechDJEskkk8ateJdKogHf; key=608d75903d29ad471362f8c58c550daf',
+    'Connection': 'keep-alive',
+}
+
+
+def get_bdr_by_name_allpoly(name):
+    out_name = Pinyin().get_pinyin(name, '')
+    url = BASE_URL.format(name=name)
+    r = requests.get(url=url, headers=HEADERS)
+    if r.status_code == requests.codes.ok:
+        js = r.text
+    else:
+        print('Fail with status_code = {}'.format(r.status_code))
+    with open(out_name, 'w') as o:
+        o.write(js.encode(&quot;utf-8&quot;))
+    m = re.findall(r&quot;jsonp_\d{1,10}_\((?P&lt;json&gt;.*)\)&quot;, js)
+    js = m[0]
+    js = json.loads(js)
+    polylines = js.get('districts')[0].get('polyline')
+    polylines = polylines.split('|')
+    poly_list = []
+    w = shapefile.Writer(shapefile.POLYGON)
+    w.field(b'NAME', b'C')
+    for polyline in polylines:
+        polyline = polyline.split(';')
+        x, y = [[float(p.split(',')[i]) for p in polyline] for i in (0, 1)]
+        polygon = [[x[j], y[j]] for j in range(len(x))]
+        w.poly(parts=[polygon])
+        w.record(b'part')
+        poly_list.append(polygon)
+    w.save(b'{out_name}'.format(out_name=out_name))
+    return poly_list
+
+
+if __name__ == '__main__':
+    get_bdr_by_name_allpoly(name=u'中国')
+    get_bdr_by_name_allpoly(name=u'河北省')
+    get_bdr_by_name_allpoly(name=u'武汉市')
+    get_bdr_by_name_allpoly(name=u'若羌县')
+
 </code></pre>
 
-<p><code>[级别 Infor/Warning/Error 时间 模块:行数] 状态码 方法 路由 耗时</code>，记录既简短又实用，非常好。</p>
+<p>我们用 ArcGIS Earth 打开看一下（别的 GIS 软件一样的）：</p>
 
-<p>但是有一天我发现自己的 tornado 日志格式 <strong>突变</strong> 了：</p>
+<p><img src="amap_shp_view.png" alt="amap_shp_view.png" title="amap_shp_view.png" /></p>
 
-<pre><code>INFO:tornado.access:200 GET / (127.0.0.1) 7.65ms
-INFO:tornado.access:200 GET /static/images/favicon.ico (127.0.0.1) 1.42ms
-</code></pre>
-
-<p>这是怎么回事呢？关键是时间没了，这个不好！
-猜测是自己新引入的什么模块本身引入了 logging 模块并且有所设置，
-从而改变了 tornado 本身对于 logging 的全局设置。</p>
-
-<p>logging 这个模块比较 <strong>特殊</strong>，即便在被引用的模块中，也会改变主程序中的 logging 设置！</p>
-
-<p>首先找到嫌疑的模块有哪些，然后逐一试验一下是否引入，查看 tornado 日志格式。
-最终发现模块 <code>metpy.gridding</code> 引入并设置了 logging。</p>
-
-<p>为了恢复 tornado 日志的默认格式，需要在 tornado 主程序开头所有 <code>import</code> 语句之后增加如下语句：</p>
-
-<pre><code>import logging
-from tornado.log import LogFormatter
-root_logger = logging.getLogger()
-root_streamhandler = root_logger.handlers[0]
-root_streamhandler.setFormatter(LogFormatter())
-</code></pre>
-
-<p>好了，这样就可以了，<code>LogFormatter()</code> 是 tornado 默认的日志格式。</p>
+<p>当然，还可以另外写为 geojson 等格式，这里就不用说了。</p>
 
   </div>
 
   <div id=links>
     
-      <a class="basic-alignment left" href="https://wormone.github.io/notebook/post/scatter%E6%95%A3%E7%82%B9%E5%9B%BE%E5%A4%A7%E5%B0%8F%E8%87%AA%E9%80%82%E5%BA%94/">&laquo; scatter散点图大小自适应</a>
+      <a class="basic-alignment left" href="https://wormone.github.io/notebook/post/tornado%E6%97%A5%E5%BF%97%E9%BB%98%E8%AE%A4%E6%A0%BC%E5%BC%8F%E5%8F%98%E6%9B%B4%E6%81%A2%E5%A4%8D/">&laquo; tornado日志默认格式变更恢复</a>
     
-    
-      <a class="basic-alignment left" href="https://wormone.github.io/notebook/post/%E4%BB%8E%E9%AB%98%E5%BE%B7%E5%9C%B0%E5%9B%BE%E8%8E%B7%E5%8F%96%E6%9C%80%E6%96%B0%E8%A1%8C%E6%94%BF%E5%8C%BA%E5%88%92%E8%BE%B9%E7%95%8C%E6%95%B0%E6%8D%AE/">从高德地图获取最新行政区划边界数据 &raquo;</a>
     
   </div>
 </section>
