@@ -6,8 +6,45 @@
     <description>Recent content on A notebook on data analysis in python</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Tue, 28 Aug 2018 09:18:15 +0800</lastBuildDate>
+    <lastBuildDate>Wed, 05 Sep 2018 13:18:15 +0800</lastBuildDate>
     <atom:link href="https://wormone.github.io/notebook/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>对于AI在气象预报方面应用的认识</title>
+      <link>https://wormone.github.io/notebook/post/%E5%AF%B9%E4%BA%8EAI%E5%9C%A8%E6%B0%94%E8%B1%A1%E9%A2%84%E6%8A%A5%E6%96%B9%E9%9D%A2%E5%BA%94%E7%94%A8%E7%9A%84%E8%AE%A4%E8%AF%86/</link>
+      <pubDate>Wed, 05 Sep 2018 13:18:15 +0800</pubDate>
+      
+      <guid>https://wormone.github.io/notebook/post/%E5%AF%B9%E4%BA%8EAI%E5%9C%A8%E6%B0%94%E8%B1%A1%E9%A2%84%E6%8A%A5%E6%96%B9%E9%9D%A2%E5%BA%94%E7%94%A8%E7%9A%84%E8%AE%A4%E8%AF%86/</guid>
+      <description>&lt;p&gt;之前在一篇关于 &lt;a href=&#34;https://wormone.github.io/notebook/notebook/post/机器学习与环境气象：空气质量预报：0方案设计/&#34;&gt;机器学习在空气质量预报方面应用&lt;/a&gt; 的总结中涉及到过这个话题。&lt;/p&gt;
+
+&lt;p&gt;现在大数据和 AI 实在是太热门了，感觉气象也在往大数据和 AI 上面靠，希望能搞出新的东西。&lt;/p&gt;
+
+&lt;p&gt;其实，返回头想想，气象本身一直就是大数据，是专业领域的一种大数据，特点包括但不限于：&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;多维度。包括空间、时间、要素等。&lt;/li&gt;
+&lt;li&gt;多源。来源包括观测站点和探空传感器、卫星遥感、模式预报等等。&lt;/li&gt;
+&lt;li&gt;结构和标准化。数据格式包括文本、二进制、图像、netCDF、HDF 等等，但有有很强的标准化。&lt;/li&gt;
+&lt;li&gt;质量控制和三性。监测数据质量控制，数据的准确性、及时性、代表性。&lt;/li&gt;
+&lt;li&gt;时空数据分辨率、覆盖度或完整性。监测数据的时间和空间分辨率和覆盖范围，预报数据的积累等等。&lt;/li&gt;
+&lt;li&gt;海量。数据量实在是太大了。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;AI 在气象预报中能做什么呢？之前的总结中跟图像、语音识别问题的对比主要是从准确率上说的（也说了在短时临近预报和气候预测方面的适用性），其实 &lt;strong&gt;更重要的一个区别&lt;/strong&gt; 是，图像和语音识别这类问题都是用 AI 从图像和语音属性特点中学习识别模式，而气象预报（这里主要说常规的天气预报，不包括短时临近预报和气候预测）则不同：它不能从未知的“实况”来提取属性特点进行识别，而只能从数值预报对未来的预报结果中提取特征属性从而对未来进行预报。&lt;/p&gt;
+
+&lt;p&gt;也就是说，AI 用于图像和语音识别这类问题，训练用的是本身（属性 X 来自于目标 Y 本身），而用于天气预报则不一样，是把数值预报的结果（多时空要素，包括目标要素本身）当作目标要素 Y 的属性特征 X，即 X 并不是从 Y 提取获得的。因此，AI 应用于气象预报，这个用法本身和以往动力统计、BP神经网络模型订正等是一样的，目的或者说用途在于减小数值预报的误差，而不是直接进行预报。&lt;/p&gt;
+
+&lt;p&gt;因为脱离开数值预报，AI 是不能单独进行气象预报的。&lt;/p&gt;
+
+&lt;p&gt;数值预报是数学物理方程对天气变化的描述，是现代气象预报的基础。那么 AI 能否替代数值预报，给天气预报带来“质的飞跃”呢？&lt;/p&gt;
+
+&lt;p&gt;如果可以的话，应该早就改变了，但实际上没有。机器学习方法（基本还用不到 AI）相比于传统的动力统计订正方法，在减小数值预报误差方面的表先可能会更好一些，但是没有本质上的改变。比如一个地方气温的预报误差，传统方法能将 RMSE 减小到 2.1℃，而用某种机器学习或者 AI 的方法可以将 RMSE 减小到 1.9℃，而始终无法减小到更小了，似乎到达了极限。&lt;/p&gt;
+
+&lt;p&gt;AI 有没有可能发展到能够替代数值预报的水平来做天气预报？应该是不行的。数值预报所依赖的数学物理方程是试图对大气的变化进行精确的描述，而机器学习和 AI 则本身并不是从物理方面进行描述，也不寻求物理方面的解释。目前还没有什么 AI 系统发展到能够达到数值预报的水平，如果可以的话，那么它的复杂程度和计算成本估计会太超乎想象以至于不现实、不可能存在，返回头来看却发现原来数值预报是天气预报唯一正确的方式。&lt;/p&gt;
+
+&lt;p&gt;其实改进数值预报准确率一直都在演进，集合预报、多模式集成、超级集合，各种集合和集成算法的尝试，统计学、机器学习、人工神经网络，都包括在内。数值预报模式、数据同化的改进应该是本质性的、基础性的，各种订正的作用是“锦上添花”，没有锦、光有花不行，锦不好、光靠花也不行。&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>从高德地图获取最新行政区划边界数据</title>
@@ -103,7 +140,9 @@ if __name__ == &#39;__main__&#39;:
 
 &lt;p&gt;&lt;img src=&#34;amap_shp_view.png&#34; alt=&#34;amap_shp_view.png&#34; title=&#34;amap_shp_view.png&#34; /&gt;&lt;/p&gt;
 
-&lt;p&gt;当然，还可以另外写为 geojson 等格式，这里就不用说了。&lt;/p&gt;
+&lt;p&gt;当然，还可以另外写为 geojson 或 kml 等格式，不难。&lt;/p&gt;
+
+&lt;p&gt;最后，需要 &lt;strong&gt;特别说明&lt;/strong&gt; 的是，由于高德地图在国内采用的是 GCJ-02 坐标系（是在 WGS84 坐标上进行的随机加密，有几十到几百米的偏移），因此，如果对精度要求非常高，就必须经过相应的坐标转换（可自行从网上搜寻坐标转换方法），如果不在意，可以忽略。&lt;/p&gt;
 </description>
     </item>
     
@@ -880,29 +919,6 @@ if __name__ == &#39;__main__&#39;:
 &lt;p&gt;Python的话，我们直接采用requests这个工具就可以很轻松完成数据爬取的工作了。&lt;/p&gt;
 
 &lt;p&gt;爬下来的数据格式可能不是我们想要的，那么接下来要做的工作就是必要的格式转换。通常，json和csv都是很不错的格式。如果数据量比较大，还可以考虑用数据库来存储，对于简单一些的应用，sqlite就够了。对于数据处理，python的numpy和pandas通常都是很好用的工具。对于数据的预览（人工检视），用matplotlib画个曲线图出来看看是很直观的。另外，还可以从数据的基本统计信息来检查数据质量（特别是数据缺失和异常），比如最大最小值、平均值、样本数、方差等等，对于排查数据质量问题都有帮助。&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>机器学习与环境气象：空气质量预报：0方案设计</title>
-      <link>https://wormone.github.io/notebook/post/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%8E%E7%8E%AF%E5%A2%83%E6%B0%94%E8%B1%A1%EF%BC%9A%E7%A9%BA%E6%B0%94%E8%B4%A8%E9%87%8F%E9%A2%84%E6%8A%A5%EF%BC%9A0%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/</link>
-      <pubDate>Mon, 17 Jul 2017 19:21:15 +0800</pubDate>
-      
-      <guid>https://wormone.github.io/notebook/post/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%8E%E7%8E%AF%E5%A2%83%E6%B0%94%E8%B1%A1%EF%BC%9A%E7%A9%BA%E6%B0%94%E8%B4%A8%E9%87%8F%E9%A2%84%E6%8A%A5%EF%BC%9A0%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1/</guid>
-      <description>&lt;p&gt;现在到处都是人工智能和机器学习的新闻，气象也在凑热闹。看热闹的不怕事大，我们也来围观。&lt;/p&gt;
-
-&lt;p&gt;话说回来，其实，机器学习在气象预报方面的能力是不能跟在图像语音识别等方面相比的。道理很简单，图像语音识别这类问题是比较明确的，&lt;strong&gt;不确定性&lt;/strong&gt;很小，人工的识别准确率很高，机器学好了可以更高更快。气象预报就不一样了，不管是人工基于天气学原理的分析还是计算机基于数学物理模型的的预报，准确率的水平都不能跟图像语音识别这类问题相比，不确定性还是太高了。如果说机器学习在气象上有好的应用方面的话，一定是那些不确定性相对比较小的地方（比如基于雷达回波的短临天气预报），或者数学物理模型还无法描述的地方（比如气候预测），也许能够取得比常规方法好一些的结果。能好多少，不知道，但是不会有本质的飞跃。&lt;/p&gt;
-
-&lt;p&gt;这里我们做一点简单的工作，基于机器学习的方法来试着做做空气质量预报。&lt;strong&gt;总体思路&lt;/strong&gt;是这样的：从网上获取空气质量的历史数据和实时更新的监测数据，从网上获取天气实况的历史数据和实时更新的天气预报数据，用机器学习的方法发掘空气质量和气象条件之间的关联，构建基于气象因素的空气质量预报模型，最后用天气预报来预测未来同期的空气质量。所以我们的工作分为以下几个部分：&lt;/p&gt;
-
-&lt;ol&gt;
-&lt;li&gt;爬取空气质量和天气数据。&lt;/li&gt;
-&lt;li&gt;数据信息的转换（为构建和训练模型做准备）。&lt;/li&gt;
-&lt;li&gt;尝试构建和训练模型，并进行评估。&lt;/li&gt;
-&lt;li&gt;实际运用于日常预报工作，实现自动化运作。&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;Let&amp;rsquo;s GO！&lt;/p&gt;
 </description>
     </item>
     
