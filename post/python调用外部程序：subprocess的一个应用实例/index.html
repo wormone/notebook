@@ -406,7 +406,7 @@
 <p>如果该程序遇到错误可以直接输出错误信息并且退出，这种情况显然还是非常容易处理的，
 我们只需要将其输出的错误信息重定向到一个日志文件中即可，<code>os.system()</code> 足以解决问题：</p>
 
-<pre><code>import os
+<pre><code class="language-python">import os
 
 if os.name == 'posix':
     os.system('nohup ./main.exe &gt; log 2&gt;&amp;1 &amp;')
@@ -418,7 +418,7 @@ if os.name == 'nt':
 用 <code>os.system()</code> 显然不方便获取错误信息内容去判断是否要额外执行其他操作。
 这时用 <code>subprocess.Popen()</code> 就好了：</p>
 
-<pre><code>import os
+<pre><code class="language-python">import os
 import subprocess
 
 # 比如应用程序所在路径是 bin_dir

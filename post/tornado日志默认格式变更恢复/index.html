@@ -400,7 +400,7 @@
   <div class="entry-content">
     <p>我们知道，tornado 日志默认格式是类似这样的：</p>
 
-<pre><code>[I 180811 19:43:13 web:2106] 200 GET / (127.0.0.1) 4.25ms
+<pre><code class="language-txt">[I 180811 19:43:13 web:2106] 200 GET / (127.0.0.1) 4.25ms
 [W 180811 19:43:14 web:2106] 404 GET /favicon.ico (127.0.0.1) 2.01ms
 </code></pre>
 
@@ -408,7 +408,7 @@
 
 <p>但是有一天我发现自己的 tornado 日志格式 <strong>突变</strong> 了：</p>
 
-<pre><code>INFO:tornado.access:200 GET / (127.0.0.1) 7.65ms
+<pre><code class="language-txt">INFO:tornado.access:200 GET / (127.0.0.1) 7.65ms
 INFO:tornado.access:200 GET /static/images/favicon.ico (127.0.0.1) 1.42ms
 </code></pre>
 
@@ -423,7 +423,7 @@ INFO:tornado.access:200 GET /static/images/favicon.ico (127.0.0.1) 1.42ms
 
 <p>为了恢复 tornado 日志的默认格式，需要在 tornado 主程序开头所有 <code>import</code> 语句之后增加如下语句：</p>
 
-<pre><code>import logging
+<pre><code class="language-python">import logging
 from tornado.log import LogFormatter
 root_logger = logging.getLogger()
 root_streamhandler = root_logger.handlers[0]

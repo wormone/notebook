@@ -46,10 +46,10 @@
 
 &lt;p&gt;其实改进数值预报准确率一直都在演进，集合预报、多模式集成、超级集合，各种集合和集成算法的尝试，统计学、机器学习、人工神经网络，都包括在内。数值预报模式、数据同化的改进应该是基础性的，各种订正的作用是“锦上添花”，没有锦、光有花不行，锦不好、光靠花也不行。&lt;/p&gt;
 
-&lt;p&gt;气象预报是有 &lt;strong&gt;可预报性&lt;/strong&gt; 问题的，也就是总有那么一部分 &lt;strong&gt;不可预报&lt;/strong&gt;。而这种 &lt;strong&gt;可预报性&lt;/strong&gt; 或 &lt;strong&gt;不可预报性&lt;/strong&gt; 在不同的时间和空间上是变化的，在不同的时间或空间尺度上也是变化的。通俗解释一下：&lt;/p&gt;
+&lt;p&gt;气象预报是有 &lt;strong&gt;可预报性&lt;/strong&gt; 问题的，也就是总有那么一部分 &lt;strong&gt;不可预报&lt;/strong&gt;。而这种 &lt;strong&gt;可预报性&lt;/strong&gt; 或 &lt;strong&gt;不可预报性&lt;/strong&gt; 在不同的时间和空间上是变化的，在不同的时间或空间尺度上也是变化的。解释一下：&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;不可预报性的存在源于自然的复杂程度超过了人类的探知和认知能力&lt;/li&gt;
+&lt;li&gt;不可预报性源于非线性动态系统中存在的“混沌”&lt;/li&gt;
 &lt;li&gt;完全准确（“完美”预报） = 可预报性（现实中预报的极限） + 不可预报性（随时间延伸而增大到使得可预报性小到失去实际价值）&lt;/li&gt;
 &lt;li&gt;某地夏季和冬季（气团控制相对稳定）的预报误差要比春季和秋季（过渡季节天气多变）大&lt;/li&gt;
 &lt;li&gt;另外一个地方（气候不同）的情况却有所不同&lt;/li&gt;
@@ -99,7 +99,7 @@
 
 &lt;p&gt;接下来我们可以编写一段程序，自动查询任意行政边界，并利用 &lt;code&gt;pyshp&lt;/code&gt; 转换成 shp 格式保存到本地：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;#!/usr/bin/env python
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import os
@@ -178,7 +178,7 @@ if __name__ == &#39;__main__&#39;:
       <guid>https://wormone.github.io/notebook/post/tornado%E6%97%A5%E5%BF%97%E9%BB%98%E8%AE%A4%E6%A0%BC%E5%BC%8F%E5%8F%98%E6%9B%B4%E6%81%A2%E5%A4%8D/</guid>
       <description>&lt;p&gt;我们知道，tornado 日志默认格式是类似这样的：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;[I 180811 19:43:13 web:2106] 200 GET / (127.0.0.1) 4.25ms
+&lt;pre&gt;&lt;code class=&#34;language-txt&#34;&gt;[I 180811 19:43:13 web:2106] 200 GET / (127.0.0.1) 4.25ms
 [W 180811 19:43:14 web:2106] 404 GET /favicon.ico (127.0.0.1) 2.01ms
 &lt;/code&gt;&lt;/pre&gt;
 
@@ -186,7 +186,7 @@ if __name__ == &#39;__main__&#39;:
 
 &lt;p&gt;但是有一天我发现自己的 tornado 日志格式 &lt;strong&gt;突变&lt;/strong&gt; 了：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;INFO:tornado.access:200 GET / (127.0.0.1) 7.65ms
+&lt;pre&gt;&lt;code class=&#34;language-txt&#34;&gt;INFO:tornado.access:200 GET / (127.0.0.1) 7.65ms
 INFO:tornado.access:200 GET /static/images/favicon.ico (127.0.0.1) 1.42ms
 &lt;/code&gt;&lt;/pre&gt;
 
@@ -201,7 +201,7 @@ INFO:tornado.access:200 GET /static/images/favicon.ico (127.0.0.1) 1.42ms
 
 &lt;p&gt;为了恢复 tornado 日志的默认格式，需要在 tornado 主程序开头所有 &lt;code&gt;import&lt;/code&gt; 语句之后增加如下语句：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;import logging
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;import logging
 from tornado.log import LogFormatter
 root_logger = logging.getLogger()
 root_streamhandler = root_logger.handlers[0]
@@ -230,7 +230,7 @@ root_streamhandler.setFormatter(LogFormatter())
 
 &lt;p&gt;今天我们主要关注一下 marker 大小的设置问题。来看一个例子：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;import numpy as np
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;import numpy as np
 import matplotlib.pyplot as plot
 
 
@@ -247,7 +247,7 @@ plt.show()
 &lt;p&gt;大小 s 必须为正，不能为负，因此这里用的是 &lt;code&gt;s=np.abs(z)&lt;/code&gt;。图本质上没有问题，只是点的大小看上去不太合适。
 我们来修正一下：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;s = 15 * (np.abs(z) / np.mean(np.abs(z)))**2
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;s = 15 * (np.abs(z) / np.mean(np.abs(z)))**2
 plt.scatter(x, y, c=z, s=s)
 cbar = plt.colorbar()
 plt.axist(&#39;scaled&#39;)
@@ -277,7 +277,7 @@ plt.show()
 &lt;p&gt;如果该程序遇到错误可以直接输出错误信息并且退出，这种情况显然还是非常容易处理的，
 我们只需要将其输出的错误信息重定向到一个日志文件中即可，&lt;code&gt;os.system()&lt;/code&gt; 足以解决问题：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;import os
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;import os
 
 if os.name == &#39;posix&#39;:
     os.system(&#39;nohup ./main.exe &amp;gt; log 2&amp;gt;&amp;amp;1 &amp;amp;&#39;)
@@ -289,7 +289,7 @@ if os.name == &#39;nt&#39;:
 用 &lt;code&gt;os.system()&lt;/code&gt; 显然不方便获取错误信息内容去判断是否要额外执行其他操作。
 这时用 &lt;code&gt;subprocess.Popen()&lt;/code&gt; 就好了：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;import os
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;import os
 import subprocess
 
 # 比如应用程序所在路径是 bin_dir
@@ -344,7 +344,7 @@ with open(&#39;log&#39;, &#39;w&#39;) as f:
 
 &lt;p&gt;最后利用 PIL，把找到的两个点在栅格图像上画出直线，找到直线经过的像素点就完成了。&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;#!/usr/bin/env python
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import os
@@ -438,7 +438,7 @@ if __name__ == &#39;__main__&#39;:
 
 &lt;p&gt;&lt;img src=&#34;midpoint_circle_PIL.png&#34; alt=&#34;midpoint_circle_PIL.tif&#34; title=&#34;midpoint_circle_PIL.tif&#34; /&gt;&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;#!/usr/bin/env python
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import numpy as np
@@ -510,13 +510,13 @@ if __name__ == &#39;__main__&#39;:
 
 &lt;p&gt;调用上面的方法，就得到的一组坐标点，但是这些点并没有按照画圆的方向排列……&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;x, y, points = get_midpoint_circle_pixels(size=10, radius=3, isPlot=True)
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;x, y, points = get_midpoint_circle_pixels(size=10, radius=3, isPlot=True)
 print x
 print y
 print points
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;pre&gt;&lt;code&gt;[2 2 2 2 2 3 3 3 3 4 4 5 5 6 6 7 7 7 7 8 8 8 8 8]
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;[2 2 2 2 2 3 3 3 3 4 4 5 5 6 6 7 7 7 7 8 8 8 8 8]
 [3 4 5 6 7 2 3 7 8 2 8 2 8 2 8 2 3 7 8 3 4 5 6 7]
 [[2, 3], [2, 4], [2, 5], [2, 6], [2, 7], [3, 2], [3, 3], [3, 7], [3, 8], [4, 2], [4, 8], [5, 2], [5, 8], [6, 2], [6, 8], [7, 2], [7, 3], [7, 7], [7, 8], [8, 3], [8, 4], [8, 5], [8, 6], [8, 7]]
 &lt;/code&gt;&lt;/pre&gt;
@@ -538,7 +538,7 @@ print points
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ol&gt;
 
-&lt;pre&gt;&lt;code&gt;# sort points clockwise
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;# sort points clockwise
 ymax = max(y)
 xmid = int(np.median(x))
 first_point = [xmid, ymax]
@@ -562,7 +562,7 @@ points = [[x[_], y[_]] for _ in range(len(x))]
 
 &lt;p&gt;这样就完成了 x, y, points 的排列。这几句话可以追加到 &lt;code&gt;get_midpoint_circle_pixels()&lt;/code&gt; 方法里，直接输出排序结果。最后画个图出来验证一下排序结果是否正确：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;size = 50
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;size = 50
 for r in range(1, 23):
     x, y, points = get_midpoint_circle_pixels(size=size, radius=r)
     plt.plot(x, y, &#39;-s&#39;, label=str(r))
@@ -626,7 +626,7 @@ plt.show()
 
 &lt;p&gt;&lt;img src=&#34;ASTGTM2_dem_merged.png&#34; alt=&#34;ASTGTM2_dem_merged.tif&#34; title=&#34;ASTGTM2_dem_merged.tif&#34; /&gt;&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;#!/usr/bin/env python
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import os
@@ -761,7 +761,7 @@ if __name__ == &#39;__main__&#39;:
 
 &lt;p&gt;所以我们直接采用requests就可以抓取了，然后再用正则匹配一下我们需要的数据，从字符串转换为json，再转换为pandas的DataFrame，方便转换为csv文件存储或者写入数据库。代码如下，python总是很简单：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;#!/usr/bin/env python
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import re

@@ -406,7 +406,7 @@
 
 <p><img src="midpoint_circle_PIL.png" alt="midpoint_circle_PIL.tif" title="midpoint_circle_PIL.tif" /></p>
 
-<pre><code>#!/usr/bin/env python
+<pre><code class="language-python">#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import numpy as np
@@ -478,13 +478,13 @@ if __name__ == '__main__':
 
 <p>调用上面的方法，就得到的一组坐标点，但是这些点并没有按照画圆的方向排列……</p>
 
-<pre><code>x, y, points = get_midpoint_circle_pixels(size=10, radius=3, isPlot=True)
+<pre><code class="language-python">x, y, points = get_midpoint_circle_pixels(size=10, radius=3, isPlot=True)
 print x
 print y
 print points
 </code></pre>
 
-<pre><code>[2 2 2 2 2 3 3 3 3 4 4 5 5 6 6 7 7 7 7 8 8 8 8 8]
+<pre><code class="language-python">[2 2 2 2 2 3 3 3 3 4 4 5 5 6 6 7 7 7 7 8 8 8 8 8]
 [3 4 5 6 7 2 3 7 8 2 8 2 8 2 8 2 3 7 8 3 4 5 6 7]
 [[2, 3], [2, 4], [2, 5], [2, 6], [2, 7], [3, 2], [3, 3], [3, 7], [3, 8], [4, 2], [4, 8], [5, 2], [5, 8], [6, 2], [6, 8], [7, 2], [7, 3], [7, 7], [7, 8], [8, 3], [8, 4], [8, 5], [8, 6], [8, 7]]
 </code></pre>
@@ -506,7 +506,7 @@ print points
 </ul></li>
 </ol>
 
-<pre><code># sort points clockwise
+<pre><code class="language-python"># sort points clockwise
 ymax = max(y)
 xmid = int(np.median(x))
 first_point = [xmid, ymax]
@@ -530,7 +530,7 @@ points = [[x[_], y[_]] for _ in range(len(x))]
 
 <p>这样就完成了 x, y, points 的排列。这几句话可以追加到 <code>get_midpoint_circle_pixels()</code> 方法里，直接输出排序结果。最后画个图出来验证一下排序结果是否正确：</p>
 
-<pre><code>size = 50
+<pre><code class="language-python">size = 50
 for r in range(1, 23):
     x, y, points = get_midpoint_circle_pixels(size=size, radius=r)
     plt.plot(x, y, '-s', label=str(r))
