@@ -445,15 +445,16 @@ HEADERS = {
 }
 
 
-def get_bdr_by_name_allpoly(name):
-    out_name = Pinyin().get_pinyin(name, '')
+def get_bdr_by_name_allpoly(name, out_name='', out_dir='.'):
+    if not out_name:
+        out_name = Pinyin().get_pinyin(name, '')
     url = BASE_URL.format(name=name)
     r = requests.get(url=url, headers=HEADERS)
     if r.status_code == requests.codes.ok:
         js = r.text
     else:
         print('Fail with status_code = {}'.format(r.status_code))
-    with open(out_name, 'w') as o:
+    with open(os.path.join(out_dir, out_name), 'w') as o:
         o.write(js.encode(&quot;utf-8&quot;))
     m = re.findall(r&quot;jsonp_\d{1,10}_\((?P&lt;json&gt;.*)\)&quot;, js)
     js = m[0]
@@ -470,7 +471,7 @@ def get_bdr_by_name_allpoly(name):
         w.poly(parts=[polygon])
         w.record(b'part')
         poly_list.append(polygon)
-    w.save(b'{out_name}'.format(out_name=out_name))
+    w.save(os.path.join(out_dir, b'{out_name}'.format(out_name=out_name)))
     return poly_list
 
 
@@ -479,6 +480,10 @@ if __name__ == '__main__':
     get_bdr_by_name_allpoly(name=u'河北省')
     get_bdr_by_name_allpoly(name=u'武汉市')
     get_bdr_by_name_allpoly(name=u'若羌县')
+
+    # 对于同名的地区，可以利用行政编码查询，避免混淆
+    get_bdr_by_name_allpoly(name='210102')  # 沈阳市和平区行政编码
+    get_bdr_by_name_allpoly(name='120101')  # 天津市和平区行政编码
 
 </code></pre>
 
